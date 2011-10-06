@@ -1,0 +1,21 @@
+#+title: Notizen
+#+description: Notizen und Aufgaben für docbook_files
+
+* Eigenschaften
+
+** Grafische Ausgabe der Dateistruktur
+
+*** Graphviz?
+Für Ruby gibt es das viele Module, siehe zum Beispiel graph.
+
+  graph version 2.3.0 has been released!
+
+  * <https://github.com/seattlerb/graph>
+
+  Graph is a type of hash that outputs in graphviz's dot format. It
+  comes with a command-line interface that is easily pluggable.
+
+  It ships with plugins to graph dependencies and status of installed
+  rubygems, rake tasks, homebrew ports, mac ports, and freebsd ports,
+  coloring leaf nodes blue, outdated nodes red, and outdated leaf nodes
+  purple (red+blue).
