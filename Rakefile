@@ -12,7 +12,10 @@ Bones {
   name         'docbook_files'
   authors      'Rainer Volz'
   email        'dev@textmulch.de'
-  url          'FIXME (project homepage)'
+  url          'http://github.com/rvolz/docbook_files/'
   ignore_file  '.gitignore'
+  ignore_file  'About.org'
   depends_on   'libxml-ruby'
+  depends_on	 'term-ansicolor'
+  depends_on	 'wand'
 }

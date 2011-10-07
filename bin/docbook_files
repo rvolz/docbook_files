@@ -8,11 +8,11 @@ require 'rubygems'
 require 'optparse'
 #require 'yaml'
 #require 'json'
-#require 'term/ansicolor'
+require 'term/ansicolor'
 
-#class String
-#  include Term::ANSIColor
-#end
+class String
+  include Term::ANSIColor
+end
 
 
 require File.expand_path(File.join(File.dirname(__FILE__), %w[.. lib docbook_files]))
@@ -20,20 +20,27 @@ require File.expand_path(File.join(File.dirname(__FILE__), %w[.. lib docbook_fil
 banner = <<EOB
 docbook_files, Version #{DocbookFiles::VERSION}
 
-Display DocBook 5 document file information.
+Displays the include hierarchy of a DocBook 5 project. 
+Use the options to see additional information about each file. 
+Files that could not be found are shown in red.
 
 Usage: docbook_files [options] <DOCBOOK-FILE>
 EOB
 
 @output_format = :screen
 
+props = []
 opts = OptionParser.new
+ivs = DocbookFiles::FileData.init_vars
+ivs.each do |k,v|
+	opts.on("--#{k.to_s}","#{v}") {|val| props << k}
+end
 opts.banner = banner
 rest = opts.parse(ARGV)
 
 # Print banner if called without arguments
 if rest.length < 1
-  puts opts.to_s
+  puts opts.to_s 
   exit 1
 end
 
@@ -45,18 +52,34 @@ end
 # The main routine
 puts("docbook_status, Version #{DocbookFiles::VERSION}") if @output_format == :screen
 dbf = DocbookFiles::Docbook.new(rest[0])
-names = dbf.list_names()
+table = dbf.list_as_table([:name,:exists]+props)
+puts '-'*10
+puts
+output_string = "%s %s" + props.map{|p| " %s"}.join
 
-def olist(lst,ndx=0)
-	lst.each {|l|
-		if l.class == String
-			puts ('  '*ndx)+l
+
+table.each_with_index do |t,index|
+	vals = ['-'*t[:level],t[:name]] + props.map {|p| 
+		if (t[p].nil? || t[p].empty?)
+			'<>'
 		else
-			olist(l,ndx+1)
+			t[p]
 		end
-	}
+		}
+	#vals = ([' '*t[:level],t[:name]] + props.map{|p| t[p]})
+	output = output_string % vals
+	if (index == 0)
+		output = "+" + output
+	elsif (index == table.length-1)
+		output = "+" + output
+	else
+		output = "|" + output
+	end
+	if t[:exists] == false
+		puts output.red
+	else
+		puts output
+	end
 end
 puts
-puts 'Include Hierarchy'
-puts '-'*80
-olist(names)
+exit 0
