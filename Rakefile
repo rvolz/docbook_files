@@ -15,7 +15,7 @@ Bones {
   url          'http://github.com/rvolz/docbook_files/'
   ignore_file  '.gitignore'
   ignore_file  'About.org'
-  depends_on   'libxml-ruby'
-  depends_on	 'term-ansicolor'
-  depends_on	 'wand'
+  depend_on    'libxml-ruby'
+  depend_on	   'term-ansicolor'
+  depend_on	   'wand'
 }
