@@ -6,7 +6,7 @@ docbook_files lists and checks all files related to a DocBook writing project.
 Features
 --------
 
-* FIXME (list of features and unsolved problems)
+* lists and checks included files
 
 Examples
 --------
@@ -16,12 +16,12 @@ Examples
 Requirements
 ------------
 
-* FIXME (list of requirements)
+* libxml2
 
 Install
 -------
 
-* gem install docbook_files
+* not yet
 
 Author
 ------
