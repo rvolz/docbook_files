@@ -16,6 +16,6 @@ Bones {
   ignore_file  '.gitignore'
   ignore_file  'About.org'
   depend_on    'libxml-ruby'
-  depend_on	   'term-ansicolor'
-  depend_on	   'wand'
+  depend_on    'term-ansicolor'
+  depend_on    'wand'
 }

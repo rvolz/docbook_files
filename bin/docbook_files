@@ -33,7 +33,7 @@ props = []
 opts = OptionParser.new
 ivs = DocbookFiles::FileData.init_vars
 ivs.each do |k,v|
-	opts.on("--#{k.to_s}","#{v}") {|val| props << k}
+  opts.on("--#{k.to_s}","#{v}") {|val| props << k}
 end
 opts.banner = banner
 rest = opts.parse(ARGV)
@@ -53,33 +53,46 @@ end
 puts("docbook_status, Version #{DocbookFiles::VERSION}") if @output_format == :screen
 dbf = DocbookFiles::Docbook.new(rest[0])
 table = dbf.list_as_table([:name,:exists]+props)
-puts '-'*10
 puts
+puts 'Include Hierarchy'
+puts '-'*80
+
 output_string = "%s %s" + props.map{|p| " %s"}.join
 
+def emptyval?(val)
+  if val.nil?
+    true
+  else
+    if (val.class == String)
+      val.empty?
+    else
+      false
+    end
+  end
+end
 
 table.each_with_index do |t,index|
-	vals = ['-'*t[:level],t[:name]] + props.map {|p| 
-		if (t[p].nil? || t[p].empty?)
-			'<>'
-		else
-			t[p]
-		end
-		}
-	#vals = ([' '*t[:level],t[:name]] + props.map{|p| t[p]})
-	output = output_string % vals
-	if (index == 0)
-		output = "+" + output
-	elsif (index == table.length-1)
-		output = "+" + output
-	else
-		output = "|" + output
-	end
-	if t[:exists] == false
-		puts output.red
-	else
-		puts output
-	end
+  vals = ['-'*t[:level]+'>',t[:name]] + props.map {|p| 
+    if (emptyval?(t[p]))
+      '<>'
+    else
+      t[p]
+    end
+  }
+  #vals = ([' '*t[:level],t[:name]] + props.map{|p| t[p]})
+  output = output_string % vals
+  if (index == 0)
+    output = "+" + output
+  elsif (index == table.length-1)
+    output = "+" + output
+  else
+    output = "|" + output
+  end
+  if t[:exists] == false
+    puts output.red
+  else
+    puts output
+  end
 end
 puts
 exit 0
