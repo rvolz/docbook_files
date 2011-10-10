@@ -1,3 +1,9 @@
+== 0.2.0 / 2011-10-10
+
+* Added search for referenced files (e.g. media files included via a 'fileref' attribute)
+* Minor fixes
+** Fixed output error for numbers and booleans
+
 == 0.1.0 / 2011-10-07
 
 * First release, the application currently only deals with included files

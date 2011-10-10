@@ -54,7 +54,7 @@ puts("docbook_status, Version #{DocbookFiles::VERSION}") if @output_format == :s
 dbf = DocbookFiles::Docbook.new(rest[0])
 table = dbf.list_as_table([:name,:exists]+props)
 puts
-puts 'Include Hierarchy'
+puts 'File Hierarchy'
 puts '-'*80
 
 output_string = "%s %s" + props.map{|p| " %s"}.join
@@ -71,28 +71,28 @@ def emptyval?(val)
   end
 end
 
-table.each_with_index do |t,index|
-  vals = ['-'*t[:level]+'>',t[:name]] + props.map {|p| 
-    if (emptyval?(t[p]))
-      '<>'
+  table.each_with_index do |t,index|
+    vals = ['-'*t[:level]+'>',t[:name]] + props.map {|p| 
+      if (emptyval?(t[p]))
+        '<>'
+      else
+        t[p]
+      end
+    }
+    output = output_string % vals
+    if (index == 0)
+      output = "+" + output
+    elsif (index == table.length-1)
+      output = "+" + output
     else
-      t[p]
+      output = "|" + output
     end
-  }
-  #vals = ([' '*t[:level],t[:name]] + props.map{|p| t[p]})
-  output = output_string % vals
-  if (index == 0)
-    output = "+" + output
-  elsif (index == table.length-1)
-    output = "+" + output
-  else
-    output = "|" + output
+    if t[:exists] == false
+      puts output.red
+    else
+      puts output
+    end
   end
-  if t[:exists] == false
-    puts output.red
-  else
-    puts output
-  end
-end
+
 puts
 exit 0

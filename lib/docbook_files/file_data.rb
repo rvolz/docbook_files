@@ -14,7 +14,7 @@ module DocbookFiles
     # XML namespace, Flag for DocBook NS, DocBook version, start tag
     #attr_accessor :namespace, :docbook, :version, :tag
 
-    attr_accessor :name, :exists, :includes
+    attr_accessor :name, :exists, :includes, :refs
 
     def FileData.init_vars()
       x = {:full_name => "file name + path",
@@ -59,6 +59,7 @@ module DocbookFiles
         @mime = ""
       end
       @includes = []
+      @refs = []
     end
 
 
@@ -100,10 +101,14 @@ module DocbookFiles
     # requested properties (symbols)
     def traverse(props=[])
       me = self.to_hash(props)
+      me2 = [me]
+      unless @refs.empty?()
+        me2 += @refs.map {|r| r.to_hash(props)}
+      end
       if @includes.empty?()
-        [me]
+        me2
       else
-        [me] + @includes.map {|i| i.traverse(props)}
+        me2 + @includes.map {|i| i.traverse(props)}
       end
     end
 
@@ -114,12 +119,14 @@ module DocbookFiles
     def traverse_as_table(props=[],level=0)
       me = self.to_hash(props)
       me[:level] = level
-      if @includes.empty?()
-        ret = [me]
-      else
-        ret = [me] + @includes.map {|i| i.traverse_as_table(props,level+1)}
+      me2 = [me]
+      unless @refs.empty?()
+        me2 += @refs.map {|r| x = r.to_hash(props); x[:level] = level+1; x}
       end
-      ret.flatten
+      unless @includes.empty?()
+        me2 += @includes.map {|i| i.traverse_as_table(props,level+1)}
+      end
+      me2.flatten
     end
 
 private

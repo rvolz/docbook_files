@@ -1,8 +1,9 @@
 # -*- encoding: utf-8 -*-
 require 'minitest/spec'
-require 'minitest/autorun'
-require "docbook_files"
 require 'turn'
+require "docbook_files"
+
+MiniTest::Unit.use_natural_language_case_names = true
 
 module  DocbookFiles 
 	describe Docbook do
@@ -16,7 +17,7 @@ module  DocbookFiles
 			actual.docbook.must_equal(false)
 		end
 					
-		it "finds namespace, DocBook-ness, version" do
+		it "finds namespace, DocBookness, version" do
 			dbf = DocbookFiles::Docbook.new("test/fixtures/bookxi.xml")
 			actual = dbf.list()
 			actual.namespace.must_equal("http://docbook.org/ns/docbook")
@@ -24,7 +25,7 @@ module  DocbookFiles
 			actual.version.must_equal("5.0")
 		end
 
-		it "finds no namespace, DocBook-ness, version" do
+		it "finds no namespace, DocBookness, version" do
 			dbf = DocbookFiles::Docbook.new("test/fixtures/no-ns.xml")
 			actual = dbf.list()
 			actual.namespace.must_equal("")
@@ -56,6 +57,19 @@ module  DocbookFiles
 				{:name=>"chapter3xi.xml", :level=>1}, 
 				{:name=>"chapter4xi.xml", :level=>1}]
 			actual.must_equal(expected)			
+		end
+
+		it "finds referenced files" do
+			dbf = DocbookFiles::Docbook.new("test/fixtures/refs/book-simple.xml")
+			actual = dbf.list()
+			actual.refs.map{|r|r.name}.must_equal(["orange.png","orange.jpeg"])
+		end
+
+		it "marks non-existing references" do
+			dbf = DocbookFiles::Docbook.new("test/fixtures/refs/book-simple-err.xml")
+			actual = dbf.list()
+			actual.refs.map{|r|r.name}.must_equal(["orange.png","orange.jpeg"])
+			actual.refs.map{|r|r.exists}.must_equal([true,false])
 		end
 
 	end

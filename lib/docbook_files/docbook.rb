@@ -98,6 +98,16 @@ private
      end
     end
 
+    # Finds and returns all external files referenced in a DocBook document.
+    # Referenced files are mostly non-XML files needed for _mediaobjects_ etc.
+    # They can be searched via the _fileref_ attribute.
+    def find_referenced_files(doc,parent_dir,parent_fd)
+      refs = doc.find('//db:*[@fileref!=""]',:db => DOCBOOK_NS)
+      refs.map {|r|
+        fname = r.attributes['fileref']
+        FileData.new(fname,parent_dir,parent_fd)
+      }
+    end
 
     # Opens a XML document and looks for included or referenced files.
     # Returns a FileData object with its include-tree
@@ -111,6 +121,7 @@ private
         fl.version = version(doc) if fl.docbook
         fl.tag = start_tag(doc)
         files = find_xincludes(doc)
+        fl.refs = find_referenced_files(doc,parent_dir,fl)
       rescue Exception => e
         files = []
       end

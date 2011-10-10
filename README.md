@@ -6,7 +6,8 @@ docbook_files lists and checks all files related to a DocBook writing project.
 Features
 --------
 
-* lists and checks included files
+* lists and checks included files (XInclude)
+* lists and checks referenced files (media files and others, specidifed by _fileref_)
 
 Synopsis
 --------
@@ -15,13 +16,13 @@ docbook_files is a command line application, bin/docbook_files, which checks the
 
   docbook_files myproject.xml
 
-This will result in a indentet list of the file names, starting from file _myproject.xml_ and following every XInclude link. Files that could not be found are shown in red.
+This will result in a indentet list of the file names, starting from file _myproject.xml_ and following every XInclude link or _fileref_ reference. _fileref_ attributes are used in _mediaobject_ tags to specify external image, video, and audio files. Files that could not be found are shown in red.
 
 Using options the output can be enhanced with more file information, use the classical _docbook_files --help_ to see all available options. They range from file size to MIME types and XML namespaces. Example:
 
   docbook_files --ts --namespace myproject.xml
 
-would result in a list with the added information of the last modified timestamp and the XML namespace of each file.
+would result in a list with the added information of the last modified timestamp and the XML namespace of each XML file.
 
 Requirements
 ------------

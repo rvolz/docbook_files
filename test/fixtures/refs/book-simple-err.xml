@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<book xmlns="http://docbook.org/ns/docbook"
+	xmlns:xi="http://www.w3.org/2001/XInclude"
+	version="5.0">
+  <title>B1</title>
+  <chapter>
+    <title>C1</title>
+    <para>
+       Dies ist ein Test .. Dies ist ein  Test.
+       In den Jahren 1900-1901 geschahen viele Überfälle von O`Reillys.
+    </para>
+    <mediaobject>
+      <info>
+        <othercredit>
+          <orgname>The artist</orgname>
+        </othercredit>
+      </info>
+      <alt>Orange</alt>
+      <imageobject>
+        <imagedata align="right" width="6cm" format="PNG" fileref="img/orange.png"/>
+      </imageobject> 
+      <imageobject>
+        <imagedata align="right" width="6cm" format="JPEG" fileref="omg/orange.jpeg"/>
+      </imageobject> 
+      <textobject>
+        <para>
+          Textobject inside a mediaboject.
+        </para>
+      </textobject> 
+    </mediaobject>
+  </chapter>
+</book>

@@ -1,0 +1,30 @@
+<chapter xmlns="http://docbook.org/ns/docbook"
+         xmlns:xi="http://www.w3.org/2001/XInclude"
+           version="5.0">
+  <title>C2</title>
+  <para>
+    Dies ist ein Test .. Dies ist ein  Test.
+    In den Jahren 1900-1901 geschahen viele Überfälle von O`Reillys.
+    <remark>FIXME Ausbauen.</remark>
+  </para>
+  <mediaobject>
+    <info>
+      <othercredit>
+        <orgname>The artist</orgname>
+      </othercredit>
+    </info>
+    <alt>Orange</alt>
+    <imageobject>
+ 	    <imagedata align="right" width="6cm" format="PNG" fileref="img/orange.png"/>
+    </imageobject> 
+    <imageobject>
+      <imagedata align="right" width="6cm" format="JPEG" fileref="img/orange.jpeg"/>
+    </imageobject> 
+    <textobject>
+      <para>
+        Textobject inside a mediaboject.
+      </para>
+    </textobject> 
+  </mediaobject>
+  <xi:include href="section1xi.xml"/>
+</chapter>

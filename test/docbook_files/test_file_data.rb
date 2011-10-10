@@ -1,9 +1,10 @@
 # -*- encoding: utf-8 -*-
 require 'minitest/spec'
-require 'minitest/autorun'
+require 'turn'
 require "docbook_files"
 require 'date'
-require 'turn'
+
+MiniTest::Unit.use_natural_language_case_names = true
 
 module  DocbookFiles 
 	describe FileData do
@@ -35,7 +36,7 @@ module  DocbookFiles
 				:full_name=>"/Users/rv/Documents/Projekte/docbook_files/test/fixtures/bookxi.xml", 
 				:namespace=>"", :docbook=>false, :version=>"", :tag=>"", :parent=>nil, :exists=>true, 
 				:ts=>Time.parse("2011-10-06 20:45:01 +0200"), :size=>481, 
-				:checksum=>"7d240e7a084c16665ac59e5b927acd6a06953897", :mime=>"application/xml"}
+				:checksum=>"7d240e7a084c16665ac59e5b927acd6a06953897", :mime=>"application/xml", :refs => []}
 			actual.must_equal(expected)			
 		end
 
