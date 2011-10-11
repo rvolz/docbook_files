@@ -20,6 +20,9 @@
     <imageobject>
       <imagedata align="right" width="6cm" format="JPEG" fileref="img/orange.jpeg"/>
     </imageobject> 
+      <imageobject>
+        <imagedata align="right" width="6cm" format="SVG" fileref="img/ship.svg"/>
+      </imageobject> 
     <textobject>
       <para>
         Textobject inside a mediaboject.

@@ -127,8 +127,7 @@ EOB
           if t[:docbook]
             @stdout.puts "Type: DocBook, Version #{t[:version]}, Tag: #{t[:tag]}"
           else
-            @stdout.puts "MIME: #{val_s(t[:mime])}, "+
-              "Namespace: #{val_s(t[:namespace])}, Tag #{val_s(t[:tag])}"
+            @stdout.puts "MIME: #{val_s(t[:mime])}"
           end
           @stdout.puts "Timestamp: %s" % [t[:ts]]
           @stdout.puts "Checksum: %s" % [t[:checksum]]          
