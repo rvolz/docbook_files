@@ -7,13 +7,13 @@ module DocbookFiles
   # Data about a member file of a DocBook project
   class FileData
 
-    # file name, full file path, existence flag, last modified timestamp, size in bytes
-    # SHA1 checksum, MIME type, array of included FileDatas
-    #attr_accessor :name, :full_name, :exists, :ts, :size, :checksum, :mime, :includes
-
-    # XML namespace, Flag for DocBook NS, DocBook version, start tag
-    #attr_accessor :namespace, :docbook, :version, :tag
-
+    # Type for the main/master file
+    TYPE_MAIN = :main
+    # Type for referenced files
+    TYPE_REFERENCE = :ref
+    # Type for included files
+    TYPE_INCLUDE = :inc
+    
     attr_accessor :name, :exists, :includes, :refs
 
     def FileData.init_vars()
@@ -79,37 +79,30 @@ module DocbookFiles
       self.traverse([:name])
     end
 
-    # Return a hash with the values for the passed symbols. 
-    # If the property list is empty all instance variables 
-    # are used, except the include.
+    # Return a hash with the values for the passed symbols.
+    # The type is added.
     # 
     # Example: to_hash([:name, :mime]) would return 
     #  {:name => "name", :mime => "application/xml"}.
     #
-    def to_hash(props=[])
-      me_hash = {}
-      if (props.empty?)
-        ivs = self.instance_variables
-        ivs.delete(:@includes)
-        ivs.delete(:@refs)
-        props = ivs.map {|iv| ivs = iv.to_s; ivs[1,ivs.length].to_sym}
-      end
+    def to_hash(props,type)
+      me_hash = {:type => type}
       props.each {|p| me_hash[p] = self.send(p)}
       me_hash
     end
 
     # Return a tree-like array of maps with the 
     # requested properties (symbols)
-    def traverse(props=[])
-      me = self.to_hash(props)
+    def traverse(props=[],type=TYPE_MAIN)
+      me = self.to_hash(props,type)
       me2 = [me]
       unless @refs.empty?()
-        me2 += @refs.map {|r| r.to_hash(props)}
+        me2 += @refs.map {|r| r.to_hash(props,TYPE_REFERENCE)}
       end
       if @includes.empty?()
         me2
       else
-        me2 + @includes.map {|i| i.traverse(props)}
+        me2 + @includes.map {|i| i.traverse(props,TYPE_INCLUDE)}
       end
     end
 
@@ -117,15 +110,15 @@ module DocbookFiles
     # requested properties (symbols). Each entry gets a level 
     # indicator (:level) to show the tree-level.
     #
-    def traverse_as_table(props=[],level=0)
-      me = self.to_hash(props)
+    def traverse_as_table(props,level=0,type=TYPE_MAIN)
+      me = self.to_hash(props,type)
       me[:level] = level
       me2 = [me]
       unless @refs.empty?()
-        me2 += @refs.map {|r| x = r.to_hash(props); x[:level] = level+1; x}
+        me2 += @refs.map {|r| x = r.to_hash(props,TYPE_REFERENCE); x[:level] = level+1; x}
       end
       unless @includes.empty?()
-        me2 += @includes.map {|i| i.traverse_as_table(props,level+1)}
+        me2 += @includes.map {|i| i.traverse_as_table(props,level+1,TYPE_INCLUDE)}
       end
       me2.flatten
     end

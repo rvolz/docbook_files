@@ -24,10 +24,10 @@ module  DocbookFiles
     
     it "converts a single FileData instance to a hash" do
       f = FileData.new("spec/fixtures/bookxi.xml")
-      actual = f.to_hash([:name,:mime,:size])
-      actual.should == {:name=>"bookxi.xml", :mime=>"application/xml", :size=>481}
-      actual = f.to_hash()
-      expected = {:name=>"bookxi.xml", 
+      actual = f.to_hash([:name,:mime,:size],FileData::TYPE_MAIN)
+      actual.should == {:type => :main, :name=>"bookxi.xml", :mime=>"application/xml", :size=>481}
+      actual = f.to_hash([:name, :full_name, :namespace, :docbook, :version, :tag, :parent, :exists, :ts, :size, :checksum, :mime],FileData::TYPE_MAIN)
+      expected = {:type => :main, :name=>"bookxi.xml", 
         :full_name=>File.expand_path(".")+"/spec/fixtures/bookxi.xml", 
         :namespace=>"", :docbook=>false, :version=>"", :tag=>"", :parent=>nil, :exists=>true, 
         :ts=>Time.parse("2011-10-06 20:45:01 +0200"), :size=>481, 
@@ -41,10 +41,10 @@ module  DocbookFiles
       f3 = FileData.new("spec/fixtures/chapter3xi.xml")
       f1.includes = [f2]
       f2.includes = [f3]
-      expected = [{:name=>"bookxi.xml", :mime=>"application/xml", :size=>481}, 
-                  [{:name=>"chapter2xi.xml", :mime=>"application/xml", :size=>366}, 
-                   [{:name=>"chapter3xi.xml", :mime=>"application/xml", :size=>286}]]]
-      actual = f1.traverse([:name,:mime,:size])
+      expected = [{:type => :main, :name=>"bookxi.xml", :mime=>"application/xml", :size=>481}, 
+                  [{:type => :inc, :name=>"chapter2xi.xml", :mime=>"application/xml", :size=>366}, 
+                   [{:type => :inc, :name=>"chapter3xi.xml", :mime=>"application/xml", :size=>286}]]]
+      actual = f1.traverse([:name,:mime,:size],FileData::TYPE_MAIN)
       actual.should == expected
     end
     
@@ -54,9 +54,9 @@ module  DocbookFiles
       f3 = FileData.new("spec/fixtures/chapter3xi.xml")
       f1.includes = [f2]
       f2.includes = [f3]
-      expected = [{:name=>"bookxi.xml", :mime=>"application/xml", :size=>481, :level=>0}, 
-                  {:name=>"chapter2xi.xml", :mime=>"application/xml", :size=>366, :level=>1}, 
-                  {:name=>"chapter3xi.xml", :mime=>"application/xml", :size=>286, :level=>2}]
+      expected = [{:type => :main, :name=>"bookxi.xml", :mime=>"application/xml", :size=>481, :level=>0}, 
+                  {:type => :inc, :name=>"chapter2xi.xml", :mime=>"application/xml", :size=>366, :level=>1}, 
+                  {:type => :inc, :name=>"chapter3xi.xml", :mime=>"application/xml", :size=>286, :level=>2}]
       actual = f1.traverse_as_table([:name,:mime,:size])
       actual.should == expected
     end
@@ -68,7 +68,7 @@ module  DocbookFiles
       f5 = FileData.new("spec/fixtures/non-existing.xml",".",f2)
       f1.includes = [f2]
       f2.includes = [f3,f5]
-      expected = [{:name=>"non-existing.xml", :parent=>"chapter2xi.xml"}]
+      expected = [{:type => :inc, :name=>"non-existing.xml", :parent=>"chapter2xi.xml"}]
       actual = f1.find_non_existing_files()
       actual.should  == expected
     end

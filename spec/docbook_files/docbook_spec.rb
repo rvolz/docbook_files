@@ -38,20 +38,20 @@ module DocbookFiles
     it "lists" do
       dbf = DocbookFiles::Docbook.new("spec/fixtures/bookxi.xml")
       actual = dbf.list()
-      expected = [{:name=>"bookxi.xml"}, 
-                  [{:name=>"chapter2xi.xml"}, [{:name=>"section1xi.xml"}]], 
-                  [{:name=>"chapter3xi.xml"}], [{:name=>"chapter4xi.xml"}]]
+      expected = [{:type => :main, :name=>"bookxi.xml"}, 
+                  [{:type => :inc, :name=>"chapter2xi.xml"}, [{:type => :inc, :name=>"section1xi.xml"}]], 
+                  [{:type => :inc, :name=>"chapter3xi.xml"}], [{:type => :inc, :name=>"chapter4xi.xml"}]]
       actual.names.should == expected
     end
     
     it "lists as a table" do
       dbf = DocbookFiles::Docbook.new("spec/fixtures/bookxi.xml")
       actual = dbf.list_as_table([:name])
-      expected = [{:name=>"bookxi.xml", :level=>0}, 
-                  {:name=>"chapter2xi.xml", :level=>1}, 
-                  {:name=>"section1xi.xml", :level=>2}, 
-                  {:name=>"chapter3xi.xml", :level=>1}, 
-                  {:name=>"chapter4xi.xml", :level=>1}]
+      expected = [{:type => :main, :name=>"bookxi.xml", :level=>0}, 
+                  {:type => :inc, :name=>"chapter2xi.xml", :level=>1}, 
+                  {:type => :inc, :name=>"section1xi.xml", :level=>2}, 
+                  {:type => :inc, :name=>"chapter3xi.xml", :level=>1}, 
+                  {:type => :inc, :name=>"chapter4xi.xml", :level=>1}]
       actual.should == expected			
     end
     
