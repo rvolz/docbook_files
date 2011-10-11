@@ -42,7 +42,7 @@ entsprechen.
 
 ** Ausgabeformate
 *** Graphviz & HTML
-*** YAML, JSON
+*** TODO YAML, JSON
 *** DocBook
 *** RDF?
 
@@ -50,7 +50,7 @@ entsprechen.
 
 Wie bei Bones?
 
-** Änderung Anzeige
+** DONE Änderung Anzeige
 *** Hierarchie
 
 Nur der Hierarchiebaum, aber mit längeren Namen. Das heißt, die
@@ -74,3 +74,4 @@ Die restlichen Angaben werden in die optionalen Details
 verschoben. Die Optionen sind dann nicht mehr notwendig.
 
 Wenn jemand den Bericht nicht mag, kann er gern die Daten über
+

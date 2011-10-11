@@ -45,17 +45,18 @@ EOB
     def run(args)
       opts = OptionParser.new
       opts.on('--details','List file details') {|val| @opts[:details] = true}
-      opts.on('--outputformat=yaml|json',['json','yaml'],
-              'Return the result in YAML or JSON format instead of printing it') {|format|
-        case
-        when format == 'yaml'
-          @opts[:output_format] = :yaml
-        when format == 'json'
-          @opts[:output_format] = :json
-        else
-          STDERR.puts "Unknown output format #{format}. Using screen output.".orange
-        end
-      }      
+      # opts.on('--outputformat=yaml|json',['json','yaml'],
+      #         'Return the result in YAML or JSON format instead of printing it') {|format|
+      #   case
+      #   when format == 'yaml'
+      #     @opts[:output_format] = :yaml
+      #   when format == 'json'
+      #     @opts[:output_format] = :json
+      #   else
+      #     STDERR.puts "Unknown output format #{format}. Using screen output.".orange
+      #   end
+      # }  
+      
       opts.banner = @@banner
       rest = opts.parse(args)
 
