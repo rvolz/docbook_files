@@ -1,4 +1,4 @@
-#-*- encoding: utf-8 ; mode:ruby -*-
+#-*- mode:ruby -*-
 begin
   require 'bones'
 rescue LoadError
@@ -17,7 +17,6 @@ Bones {
   email        'dev@textmulch.de'
   url          'http://github.com/rvolz/docbook_files/'
   ignore_file  '.gitignore'
-  ignore_file  'About.org'
   depend_on    'libxml-ruby'
   depend_on    'term-ansicolor'
   depend_on    'wand'
