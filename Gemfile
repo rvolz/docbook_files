@@ -5,5 +5,11 @@ gem "term-ansicolor"
 gem "wand"
 
 group :development do
-	gem "bones"
+  gem "bones"
+  gem 'turn'
+  gem 'rspec'
+  gem 'guard'
+  gem 'rb-fsevent'
+  gem 'growl_notify'
+  gem 'guard-rspec'
 end

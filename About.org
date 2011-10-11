@@ -19,3 +19,58 @@ Für Ruby gibt es das viele Module, siehe zum Beispiel graph.
   rubygems, rake tasks, homebrew ports, mac ports, and freebsd ports,
   coloring leaf nodes blue, outdated nodes red, and outdated leaf nodes
   purple (red+blue).
+
+
+** Detailausgabe gegenüber Hierarchie
+
+Die Hierarchie ist die Hauptausgabe. Allerdings kann man sich über
+'--details' auch die Detailangaben zu allen beteiligten Dateien
+ausgeben lassen. Hier werden alle Angaben ausgegeben, die oben
+optional sind.
+
+Besonders wichtig ist die Zusammenfassung, also Dateien, die an
+mehreren Stellen eingebunden werden, also mehrere Eltern haben!
+
+Die Detailausgabe führt dann über zum Releasedokument.
+
+** Releasedokument
+
+Die Ausgabe kann in einer Datei gespeichert werden, die dann als
+Manifest für ein Archiv dienen kann. Anhand des Dokuments kann man
+schauen, ob die vorliegenden Dateien dem gespeicherten Stand
+entsprechen.
+
+** Ausgabeformate
+*** Graphviz & HTML
+*** YAML, JSON
+*** DocBook
+*** RDF?
+
+** Zusammenhang mit SCM
+
+Wie bei Bones?
+
+** Änderung Anzeige
+*** Hierarchie
+
+Nur der Hierarchiebaum, aber mit längeren Namen. Das heißt, die
+Dateien werden mit Pfad angezeigt, mit relativem zum Masterdokument.
+
+Falls zu lang am Anfang kürzen mit Ellipse.
+
+URIs oder nicht relative Dateien werden mit dem Anfang angezeigt,
+ggf. in der Mitte gekürzt.
+
+*** Zusammenfassung
+
+ * X Dateien
+ * Y inkludierte DocBooks
+ * Z referenzierte
+
+YAML/JSON übernehmen und seinen eigenen machen.
+*** Details
+
+Die restlichen Angaben werden in die optionalen Details
+verschoben. Die Optionen sind dann nicht mehr notwendig.
+
+Wenn jemand den Bericht nicht mag, kann er gern die Daten über

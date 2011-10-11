@@ -23,7 +23,7 @@ module DocbookFiles
 
     # Return the FileData tree representing the include
     # hierarchy.
-    #
+    #    
     def list
       @fd_tree ||= analyze_file(@main_name,File.dirname(@main_name))
       @fd_tree
@@ -128,5 +128,6 @@ private
       fl.includes = files.map {|f| analyze_file(f,parent_dir,fl)}
       fl
     end
+
   end
 end

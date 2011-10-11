@@ -12,7 +12,7 @@ Features
 Synopsis
 --------
 
-docbook_files is a command line application, bin/docbook_files, which checks the files that are included or referenced in a DocBook 5 project. (Note: In version 0.1.0 we are only checking included files, but that will change.)
+docbook_files is a command line application, bin/docbook_files, which checks the files that are included or referenced in a DocBook 5 project. 
 
   docbook_files myproject.xml
 
