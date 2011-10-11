@@ -91,6 +91,7 @@ module DocbookFiles
       if (props.empty?)
         ivs = self.instance_variables
         ivs.delete(:@includes)
+        ivs.delete(:@refs)
         props = ivs.map {|iv| ivs = iv.to_s; ivs[1,ivs.length].to_sym}
       end
       props.each {|p| me_hash[p] = self.send(p)}

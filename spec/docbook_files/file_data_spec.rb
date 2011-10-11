@@ -31,7 +31,7 @@ module  DocbookFiles
         :full_name=>File.expand_path(".")+"/spec/fixtures/bookxi.xml", 
         :namespace=>"", :docbook=>false, :version=>"", :tag=>"", :parent=>nil, :exists=>true, 
         :ts=>Time.parse("2011-10-06 20:45:01 +0200"), :size=>481, 
-        :checksum=>"7d240e7a084c16665ac59e5b927acd6a06953897", :mime=>"application/xml", :refs => []}
+        :checksum=>"7d240e7a084c16665ac59e5b927acd6a06953897", :mime=>"application/xml"}
       actual.should == expected			
     end
 
