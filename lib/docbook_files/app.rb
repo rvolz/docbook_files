@@ -81,6 +81,7 @@ EOB
       output(table)
     end
 
+    # Terminal output to @stdout
     def output(table)
       output_string = "%3d %-60s %4s %10s" 
       @stdout.puts
@@ -108,6 +109,32 @@ EOB
         summary += " #{sum_not_existing} file(s) not found.".red
       end
       @stdout.puts summary
+      if @opts[:details]
+        @stdout.puts
+        @stdout.puts "Details".bold
+        table.each do |t|
+          fname = format_name(0,t[:full_name],table[0][:full_name])
+          @stdout.puts "File: %s" % [(t[:exists] ? fname : fname.red)]
+          if (t[:type] == FileData::TYPE_MAIN)
+            @stdout.puts "Main file"
+          elsif (t[:type] == FileData::TYPE_INCLUDE)
+            @stdout.puts "Included by: %s" % [t[:parent]]
+          else
+            @stdout.puts "Referenced by: %s" % [t[:parent]]
+          end
+          next unless t[:exists]
+          @stdout.puts "Size: %s (%d)" % [format_size(t[:size]),t[:size]]
+          if t[:docbook]
+            @stdout.puts "Type: DocBook, Version #{t[:version]}, Tag: #{t[:tag]}"
+          else
+            @stdout.puts "MIME: #{val_s(t[:mime])}, "+
+              "Namespace: #{val_s(t[:namespace])}, Tag #{val_s(t[:tag])}"
+          end
+          @stdout.puts "Timestamp: %s" % [t[:ts]]
+          @stdout.puts "Checksum: %s" % [t[:checksum]]          
+          @stdout.puts
+        end
+      end
     end
 
 
@@ -127,8 +154,7 @@ EOB
         nname = md.post_match
       end
       lnname = '  '*level+nname
-      if (lnname.length > 61)
-        ndiff = lnname.length - 61
+      if (lnname.length > 60)
         lnname[0..3]+'...'+lnname[-54,lnname.length-1]
       else
         lnname
@@ -147,7 +173,7 @@ EOB
     # Sizes >= 1PB will return 'XXL'
     def format_size(sz)
       if (emptyval?(sz))
-        '<>'
+        '-'
       else
         case
         when sz < KB then  "#{sz}B"
@@ -160,7 +186,17 @@ EOB
         end
       end
     end
-    
+
+    # Return a string for the value, '<>' if there is none.
+    def val_s(val)
+      if emptyval?(val)
+        '-'
+      else
+        val.to_s
+      end
+    end
+
+    # Check whether the value is nil or empty.
     def emptyval?(val)
       if val.nil?
         true
