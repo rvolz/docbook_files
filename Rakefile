@@ -8,8 +8,8 @@ end
 require 'rspec/core/rake_task'
 RSpec::Core::RakeTask.new
 
-task :default => 'test:run'
-task 'gem:release' => 'test:run'
+task :default => 'spec'
+task 'gem:release' => 'spec'
 
 Bones {
   name         'docbook_files'

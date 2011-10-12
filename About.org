@@ -1,27 +1,10 @@
+#-*- encoding:utf-8 -*-
 #+title: Notizen
 #+description: Notizen und Aufgaben für docbook_files
 
-* Eigenschaften
+* Jetzt
 
-** Grafische Ausgabe der Dateistruktur
-
-*** Graphviz?
-Für Ruby gibt es das viele Module, siehe zum Beispiel graph.
-
-  graph version 2.3.0 has been released!
-
-  * <https://github.com/seattlerb/graph>
-
-  Graph is a type of hash that outputs in graphviz's dot format. It
-  comes with a command-line interface that is easily pluggable.
-
-  It ships with plugins to graph dependencies and status of installed
-  rubygems, rake tasks, homebrew ports, mac ports, and freebsd ports,
-  coloring leaf nodes blue, outdated nodes red, and outdated leaf nodes
-  purple (red+blue).
-
-
-** Detailausgabe gegenüber Hierarchie
+** DONE Detailausgabe gegenüber Hierarchie
 
 Die Hierarchie ist die Hauptausgabe. Allerdings kann man sich über
 '--details' auch die Detailangaben zu allen beteiligten Dateien
@@ -33,22 +16,7 @@ mehreren Stellen eingebunden werden, also mehrere Eltern haben!
 
 Die Detailausgabe führt dann über zum Releasedokument.
 
-** Releasedokument
-
-Die Ausgabe kann in einer Datei gespeichert werden, die dann als
-Manifest für ein Archiv dienen kann. Anhand des Dokuments kann man
-schauen, ob die vorliegenden Dateien dem gespeicherten Stand
-entsprechen.
-
-** Ausgabeformate
-*** Graphviz & HTML
-*** TODO YAML, JSON
-*** DocBook
-*** RDF?
-
-** Zusammenhang mit SCM
-
-Wie bei Bones?
+** TODO Ausgabeformat YAML, JSON
 
 ** DONE Änderung Anzeige
 *** Hierarchie
@@ -75,3 +43,45 @@ verschoben. Die Optionen sind dann nicht mehr notwendig.
 
 Wenn jemand den Bericht nicht mag, kann er gern die Daten über
 
+** TODO Dateien mit mehreren Eltern
+
+Besonders wichtig ist die Zusammenfassung, also Dateien, die an
+mehreren Stellen eingebunden werden, also mehrere Eltern haben! Es geht
+daher nur um das Parent-Element in FileData. Das muss ein Array
+sein. Und bei der Ausgabe muss auch der qualifizierte Name angegeben
+werden, derzeit ist es nur der reine Dateiname.
+
+** Was ist mit DocBook Assemblies?
+
+** Waren das alle refs in DocBook?
+
+** Was ist mit URLs?
+
+Ignorieren oder gezielt verarbeiten? Wei häufig sind die?
+
+
+* Später
+
+** EXIF-Daten für Bilder?
+
+** Metas für Video und Audio?
+
+
+* Andere Baustelle?
+
+** Releasedokument?
+
+Die Ausgabe kann in einer Datei gespeichert werden, die dann als
+Manifest für ein Archiv dienen kann. Anhand des Dokuments kann man
+schauen, ob die vorliegenden Dateien dem gespeicherten Stand
+entsprechen.
+
+Gehört ein solches Dokument zur Kernfunktionalität?
+** Signatur
+
+Auf dem Manifest aufbauend die Sammlung oder einzelne Dokumente
+signieren?
+
+** Ausgabeformat Graphviz/HTML --> docbook_web
+** Ausgabeformat RDF? Wofür?
+** Zusammenhang mit SCM wie bei Bones?

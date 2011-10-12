@@ -16,13 +16,13 @@ Synopsis
 
 docbook_files is a command line application, bin/docbook_files, which checks the files that are included or referenced in a DocBook 5 project. 
 
-   docbook_files myproject.xml
+    docbook_files myproject.xml
 
 This will result in a overview listing of the file names, starting from file _myproject.xml_ and following every XInclude link or _fileref_ reference. _fileref_ attributes are used in _mediaobject_ tags to specify external image, video, and audio files. Files that could not be found are shown in red.
 
-   docbook_files --details myproject.xml
+    docbook_files --details myproject.xml
 
-The --details option adds, well yes, details to the overview: Size, type information, timestamp and checksum.
+The _--details_ option adds, well yes, details to the overview: size, type information, timestamp and checksum.
 
 Requirements
 ------------
