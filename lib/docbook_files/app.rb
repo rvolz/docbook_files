@@ -77,9 +77,10 @@ EOB
         dbf = DocbookFiles::Docbook.new(rest[0])
         table = dbf.list_as_table(@props)
       rescue => exc
+        @stderr.puts "Something unexpected happend while docbook_files was running ..."
         @stderr.puts exc.inspect.red
       end
-      output(table)
+      output(table) unless table.nil?
     end
 
     # Terminal output to @stdout
