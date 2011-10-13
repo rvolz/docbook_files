@@ -11,6 +11,8 @@ module DocbookFiles
       actual.name.should == "no-xml.xml"
       actual.size.should == 15
       actual.docbook.should be_false
+      actual.xml_err.should be_true
+      actual.error_string.should_not be_nil
     end
     
     it "finds namespace, DocBookness, version" do
