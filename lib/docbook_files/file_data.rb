@@ -15,7 +15,8 @@ module DocbookFiles
     TYPE_INCLUDE = :inc
     
     attr_accessor :name, :exists, :includes, :refs
-
+    attr_accessor :xml_err, :error_string
+    
     def FileData.init_vars()
       x = {:full_name => "file name + path",
         :ts => "last modified timestamp",
@@ -44,6 +45,8 @@ module DocbookFiles
       @docbook = false
       @version = ""
       @tag = ""
+      @xml_err = false
+      @error_string = nil
       @parent = (parent_file.nil? ? nil : parent_file.name)
       if (File.exists?(@full_name))
         @exists = true        

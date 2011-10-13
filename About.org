@@ -56,8 +56,15 @@ werden, derzeit ist es nur der reine Dateiname.
 ** Waren das alle refs in DocBook?
 
 ** Was ist mit URLs?
-
 Ignorieren oder gezielt verarbeiten? Wei häufig sind die?
+
+** DONE Behandlung von fehlerhaften XMLs verbessern
+Zur Zeit gibt der Parser Fehlermeldungen aus, die aber ignoriert
+werden. Auf Non-XML hinweisen.
+
+Ist die Hauptdatei Non-XML, abbrechen.
+
+
 
 
 * Später

@@ -39,7 +39,7 @@ EOB
       @opts[:output_format] ||= :screen
       @opts[:details] ||= false
       @props = [:name, :full_name, :namespace, :docbook,
-                :version, :tag, :parent, :exists, :ts, :size, :checksum, :mime]
+                :version, :tag, :parent, :exists, :ts, :size, :checksum, :mime, :xml_err, :error_string]
     end
 
     def run(args)
@@ -92,6 +92,7 @@ EOB
       @stdout.puts '-'*80
       sum_size = 0
       sum_not_existing = 0
+      sum_xml_err = 0
       table.each do |t|
         output = output_string % [t[:level],
                                   format_name(t[:level],t[:full_name],table[0][:full_name]),
@@ -101,6 +102,9 @@ EOB
         if t[:exists] == false
           @stdout.puts output.red
           sum_not_existing += 1
+        elsif t[:xml_err] == true
+          @stdout.puts output.red
+          sum_xml_err += 1          
         else
           @stdout.puts output
         end
@@ -110,13 +114,16 @@ EOB
       if sum_not_existing > 0
         summary += " #{sum_not_existing} file(s) not found.".red
       end
+      if sum_xml_err > 0
+        summary += " #{sum_xml_err} file(s) with XML problems.".red
+      end
       @stdout.puts summary
       if @opts[:details]
         @stdout.puts
         @stdout.puts "Details".bold
         table.each do |t|
           fname = format_name(0,t[:full_name],table[0][:full_name])
-          @stdout.puts "File: %s" % [(t[:exists] ? fname : fname.red)]
+          @stdout.puts "File: %s" % [((t[:exists] && !t[:xml_err]) ? fname : fname.red)]
           if (t[:type] == FileData::TYPE_MAIN)
             @stdout.puts "Main file"
           elsif (t[:type] == FileData::TYPE_INCLUDE)
@@ -126,13 +133,16 @@ EOB
           end
           next unless t[:exists]
           @stdout.puts "Size: %s (%d)" % [format_size(t[:size]),t[:size]]
-          if t[:docbook]
+          if (t[:docbook])
             @stdout.puts "Type: DocBook, Version #{t[:version]}, Tag: #{t[:tag]}"
           else
             @stdout.puts "MIME: #{val_s(t[:mime])}"
           end
           @stdout.puts "Timestamp: %s" % [t[:ts]]
-          @stdout.puts "Checksum: %s" % [t[:checksum]]          
+          @stdout.puts "Checksum: %s" % [t[:checksum]]
+          unless (t[:error_string].nil?)
+            @stdout.puts "Error: %s" % [t[:error_string].to_s.red]
+          end
           @stdout.puts
         end
       end

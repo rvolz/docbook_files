@@ -15,10 +15,13 @@ module DocbookFiles
 
     # The FileData tree representing the file hierarchy
     attr_reader :fd_tree
-        
+
+    # Initialize vars and quiet the libxml error handler.
+    # See http://libxml.rubyforge.org/rdoc/classes/LibXML/XML/Error.html
     def initialize(fname)
       @main_name = fname
       @fd_tree = nil
+      XML::Error.set_handler(&XML::Error::QUIET_HANDLER)
     end
 
     # Return the FileData tree representing the include
@@ -114,18 +117,22 @@ private
     #
     def analyze_file(fname, parent_dir, parent_fd=nil)
       fl = FileData.new(fname, parent_dir, parent_fd)
-      begin
-        doc = XML::Document.file(fl.full_name)      
-        fl.namespace = namespace(doc)
-        fl.docbook = true if docbook?(doc)
-        fl.version = version(doc) if fl.docbook
-        fl.tag = start_tag(doc)
-        files = find_xincludes(doc)
-        fl.refs = find_referenced_files(doc,parent_dir,fl)
-      rescue Exception => e
-        files = []
+      if fl.exists?
+        begin
+          doc = XML::Document.file(fl.full_name)      
+          fl.namespace = namespace(doc)
+          fl.docbook = true if docbook?(doc)
+          fl.version = version(doc) if fl.docbook
+          fl.tag = start_tag(doc)
+          files = find_xincludes(doc)
+          fl.refs = find_referenced_files(doc,parent_dir,fl)
+        rescue Exception => e
+          fl.error_string = e
+          fl.xml_err = true
+          files = []
+        end
+        fl.includes = files.map {|f| analyze_file(f,parent_dir,fl)}
       end
-      fl.includes = files.map {|f| analyze_file(f,parent_dir,fl)}
       fl
     end
 
