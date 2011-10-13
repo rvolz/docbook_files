@@ -1,4 +1,4 @@
-# -*-encoding:utf-8-*-
+# -*- encoding:utf-8 -*-
 module DocbookFiles
   require 'date'
   require 'digest/sha1'
