@@ -15,7 +15,7 @@ Bones {
   name         'docbook_files'
   authors      'Rainer Volz'
   email        'dev@textmulch.de'
-  url          'http://github.com/rvolz/docbook_files/'
+  url          'http://rvolz.github.com/docbook_files/'
   ignore_file  '.gitignore'
   depend_on    'libxml-ruby'
   depend_on    'term-ansicolor'
