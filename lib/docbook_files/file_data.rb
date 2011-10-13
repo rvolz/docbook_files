@@ -125,9 +125,18 @@ module DocbookFiles
 
 private
 
-    # Calculate the SHA1 checksum for the file
+    # Calculate the SHA1 checksum for the file.
+    #
+    #--
+    # Includes hack for Ruby 1.8
+    #++
     def calc_checksum
-        Digest::SHA1.hexdigest(IO.binread(@full_name))
+      if RUBY_VERSION=~ /^1.8/
+        contents = open(@full_name, "rb") {|io| io.read }
+      else
+        contents = IO.binread(@full_name)
+      end
+      Digest::SHA1.hexdigest(contents)
     end
 
     # Produce the full path for a filename
