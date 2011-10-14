@@ -21,4 +21,5 @@ Bones {
   depend_on    'libxml-ruby'
   depend_on    'term-ansicolor'
   depend_on    'wand'
+  depend_on    'json'
 }
