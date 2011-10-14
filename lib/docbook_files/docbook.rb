@@ -127,8 +127,8 @@ private
           files = find_xincludes(doc)
           fl.refs = find_referenced_files(doc,parent_dir,fl)
         rescue Exception => e
-          fl.error_string = e
-          fl.xml_err = true
+          fl.error_string = e.to_s
+          fl.status = FileData::STATUS_ERR
           files = []
         end
         fl.includes = files.map {|f| analyze_file(f,parent_dir,fl)}

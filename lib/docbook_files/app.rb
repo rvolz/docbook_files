@@ -18,14 +18,21 @@ module DocbookFiles
     args ||= ARGV.dup.map! { |v| v.dup }
     ::DocbookFiles::App.new.run args
   end
-  
+
+  ##
+  # App class for the _binary_
+  #
+  # Return codes
+  # * 0 - ok
+  # * 1 - no arguments or file not found
+  # * 2 - processing error
+  #
   class App
     @@banner = <<EOB
 docbook_files, Version #{DocbookFiles::VERSION}
 
-Displays the include hierarchy of a DocBook 5 project. 
-Use the options to see additional information about each file. 
-Files that could not be found are shown in red.
+Shows the file hierarchy of a DocBook 5 project. 
+Files with problems (not found, invalid ...) are marked red.
 
 Usage: docbook_files [options] <DOCBOOK-FILE>
 EOB
@@ -39,24 +46,23 @@ EOB
       @opts[:output_format] ||= :screen
       @opts[:details] ||= false
       @props = [:name, :full_name, :namespace, :docbook,
-                :version, :tag, :parent, :exists, :ts, :size, :checksum, :mime, :xml_err, :error_string]
+                :version, :tag, :parent, :status, :ts, :size, :checksum, :mime, :error_string]
     end
 
     def run(args)
       opts = OptionParser.new
       opts.on('--details','List file details') {|val| @opts[:details] = true}
-      # opts.on('--outputformat=yaml|json',['json','yaml'],
-      #         'Return the result in YAML or JSON format instead of printing it') {|format|
-      #   case
-      #   when format == 'yaml'
-      #     @opts[:output_format] = :yaml
-      #   when format == 'json'
-      #     @opts[:output_format] = :json
-      #   else
-      #     STDERR.puts "Unknown output format #{format}. Using screen output.".orange
-      #   end
-      # }  
-      
+      opts.on('--outputformat=yaml|json',['json','yaml'],
+              'Return the result in YAML or JSON format') {|format|
+        case
+        when format == 'yaml'
+          @opts[:output_format] = :yaml
+        when format == 'json'
+          @opts[:output_format] = :json
+        else
+          @stderr.puts "Warning: Unknown output format #{format}. Using screen output.".orange
+        end
+      }        
       opts.banner = @@banner
       rest = opts.parse(args)
 
@@ -66,21 +72,32 @@ EOB
         exit 1
       end
 
-      # The main routine
+      # Fail if argument not found
       @stdout.puts("docbook_files, Version #{DocbookFiles::VERSION}") if @opts[:output_format] == :screen
       unless File.exists?(rest[0])
         @stderr.puts "Error: File #{rest[0]} not found.".red
         exit 1
       end
 
+      # Main
       begin
         dbf = DocbookFiles::Docbook.new(rest[0])
         table = dbf.list_as_table(@props)
       rescue => exc
         @stderr.puts "Something unexpected happend while docbook_files was running ..."
         @stderr.puts exc.inspect.red
+        exit 2
       end
-      output(table) unless table.nil?
+      unless table.nil?
+        case @opts[:output_format]
+        when :json
+          @stdout.puts table.to_json
+        when :yaml
+          YAML.dump(table,@stdout)
+        else
+          output(table)
+        end
+      end
     end
 
     # Terminal output to @stdout
@@ -99,10 +116,10 @@ EOB
                                   t[:type].to_s,
                                   format_size(t[:size])]
         sum_size += t[:size]
-        if t[:exists] == false
+        if t[:status] == FileData::STATUS_NOT_FOUND
           @stdout.puts output.red
           sum_not_existing += 1
-        elsif t[:xml_err] == true
+        elsif t[:status] == FileData::STATUS_ERR
           @stdout.puts output.red
           sum_xml_err += 1          
         else
@@ -115,7 +132,7 @@ EOB
         summary += " #{sum_not_existing} file(s) not found.".red
       end
       if sum_xml_err > 0
-        summary += " #{sum_xml_err} file(s) with XML problems.".red
+        summary += " #{sum_xml_err} file(s) with errors.".red
       end
       @stdout.puts summary
       if @opts[:details]
@@ -123,7 +140,7 @@ EOB
         @stdout.puts "Details".bold
         table.each do |t|
           fname = format_name(0,t[:full_name],table[0][:full_name])
-          @stdout.puts "File: %s" % [((t[:exists] && !t[:xml_err]) ? fname : fname.red)]
+          @stdout.puts "File: %s" % [((t[:status] == FileData::STATUS_OK) ? fname : fname.red)]
           if (t[:type] == FileData::TYPE_MAIN)
             @stdout.puts "Main file"
           elsif (t[:type] == FileData::TYPE_INCLUDE)
@@ -131,18 +148,18 @@ EOB
           else
             @stdout.puts "Referenced by: %s" % [t[:parent]]
           end
-          next unless t[:exists]
-          @stdout.puts "Size: %s (%d)" % [format_size(t[:size]),t[:size]]
-          if (t[:docbook])
-            @stdout.puts "Type: DocBook, Version #{t[:version]}, Tag: #{t[:tag]}"
-          else
-            @stdout.puts "MIME: #{val_s(t[:mime])}"
+          unless t[:status] == FileData::STATUS_NOT_FOUND
+            # show that part only if file exists
+            @stdout.puts "Size: %s (%d)" % [format_size(t[:size]),t[:size]]
+            if (t[:docbook])
+              @stdout.puts "Type: DocBook, Version #{t[:version]}, Tag: #{t[:tag]}"
+            else
+              @stdout.puts "MIME: #{val_s(t[:mime])}"
+            end
+            @stdout.puts "Timestamp: %s" % [t[:ts]]
+            @stdout.puts "Checksum: %s" % [t[:checksum]]
           end
-          @stdout.puts "Timestamp: %s" % [t[:ts]]
-          @stdout.puts "Checksum: %s" % [t[:checksum]]
-          unless (t[:error_string].nil?)
-            @stdout.puts "Error: %s" % [t[:error_string].to_s.red]
-          end
+          @stdout.puts "Error: %s" % [t[:error_string].to_s.red] unless (t[:error_string].nil?)            
           @stdout.puts
         end
       end

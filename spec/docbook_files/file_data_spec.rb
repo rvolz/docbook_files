@@ -26,10 +26,10 @@ module  DocbookFiles
       f = FileData.new("spec/fixtures/bookxi.xml")
       actual = f.to_hash([:name,:mime,:size],FileData::TYPE_MAIN)
       actual.should == {:type => :main, :name=>"bookxi.xml", :mime=>"application/xml", :size=>481}
-      actual = f.to_hash([:name, :full_name, :namespace, :docbook, :version, :tag, :parent, :exists, :ts, :size, :checksum, :mime],FileData::TYPE_MAIN)
+      actual = f.to_hash([:name, :full_name, :namespace, :docbook, :version, :tag, :parent, :status, :ts, :size, :checksum, :mime],FileData::TYPE_MAIN)
       expected = {:type => :main, :name=>"bookxi.xml", 
         :full_name=>File.expand_path(".")+"/spec/fixtures/bookxi.xml", 
-        :namespace=>"", :docbook=>false, :version=>"", :tag=>"", :parent=>nil, :exists=>true, 
+        :namespace=>"", :docbook=>false, :version=>"", :tag=>"", :parent=>nil, :status=>FileData::STATUS_OK, 
         :ts=>File.mtime(File.expand_path(".")+"/spec/fixtures/bookxi.xml"), :size=>481, 
         :checksum=>"7d240e7a084c16665ac59e5b927acd6a06953897", :mime=>"application/xml"}
       actual.should == expected			

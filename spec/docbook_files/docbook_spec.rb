@@ -11,7 +11,7 @@ module DocbookFiles
       actual.name.should == "no-xml.xml"
       actual.size.should == 15
       actual.docbook.should be_false
-      actual.xml_err.should be_true
+      actual.status.should == FileData::STATUS_ERR
       actual.error_string.should_not be_nil
     end
     
@@ -67,7 +67,7 @@ module DocbookFiles
       dbf = DocbookFiles::Docbook.new("spec/fixtures/refs/book-simple-err.xml")
       actual = dbf.list()
       actual.refs.map{|r|r.name}.should == ["orange.png","orange.jpeg"]
-      actual.refs.map{|r|r.exists}.should == [true,false]
+      actual.refs.map{|r|r.status != FileData::STATUS_NOT_FOUND}.should == [true,false]
     end
     
   end

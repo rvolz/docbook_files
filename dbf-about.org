@@ -1,6 +1,5 @@
 #-*- encoding:utf-8 -*-
-#+title: Notizen
-#+description: Notizen und Aufgaben für docbook_files
+#+title: docbook_files Notizen
 
 * Jetzt
 
@@ -16,7 +15,10 @@ mehreren Stellen eingebunden werden, also mehrere Eltern haben!
 
 Die Detailausgabe führt dann über zum Releasedokument.
 
-** TODO Ausgabeformat YAML, JSON
+** DONE Ausgabeformat YAML, JSON
+
+Fehlerbehandlung vereinheitlichen, damit die Datenstruktur sinnvoller
+wird.
 
 ** DONE Änderung Anzeige
 *** Hierarchie
@@ -51,13 +53,6 @@ daher nur um das Parent-Element in FileData. Das muss ein Array
 sein. Und bei der Ausgabe muss auch der qualifizierte Name angegeben
 werden, derzeit ist es nur der reine Dateiname.
 
-** Was ist mit DocBook Assemblies?
-
-** Waren das alle refs in DocBook?
-
-** Was ist mit URLs?
-Ignorieren oder gezielt verarbeiten? Wei häufig sind die?
-
 ** DONE Behandlung von fehlerhaften XMLs verbessern
 Zur Zeit gibt der Parser Fehlermeldungen aus, die aber ignoriert
 werden. Auf Non-XML hinweisen.
@@ -69,9 +64,16 @@ Ist die Hauptdatei Non-XML, abbrechen.
 
 * Später
 
+** Waren das alle refs in DocBook?
+
+** Was ist mit URLs?
+Ignorieren oder gezielt verarbeiten? Wei häufig sind die?
+
 ** EXIF-Daten für Bilder?
 
 ** Metas für Video und Audio?
+
+** Was ist mit DocBook Assemblies?
 
 
 * Andere Baustelle?
@@ -84,6 +86,7 @@ schauen, ob die vorliegenden Dateien dem gespeicherten Stand
 entsprechen.
 
 Gehört ein solches Dokument zur Kernfunktionalität?
+
 ** Signatur
 
 Auf dem Manifest aufbauend die Sammlung oder einzelne Dokumente

@@ -13,9 +13,16 @@ module DocbookFiles
     TYPE_REFERENCE = :ref
     # Type for included files
     TYPE_INCLUDE = :inc
+
+    # File exists and no error happened
+    STATUS_OK = 0
+    # File does not exist
+    STATUS_NOT_FOUND = 1
+    # Error while processing the file, see #error_string
+    STATUS_ERR = 2
     
     attr_accessor :name, :exists, :includes, :refs
-    attr_accessor :xml_err, :error_string
+    attr_accessor :status, :error_string
     
     def FileData.init_vars()
       x = {:full_name => "file name + path",
@@ -45,21 +52,21 @@ module DocbookFiles
       @docbook = false
       @version = ""
       @tag = ""
-      @xml_err = false
       @error_string = nil
       @parent = (parent_file.nil? ? nil : parent_file.name)
       if (File.exists?(@full_name))
-        @exists = true        
+        @status = STATUS_OK
         @ts  = File.mtime(full_name)
         @size = File.size(full_name)        
         @checksum = calc_checksum()
         @mime = get_mime_type()
       else
-        @exists = false
+        @status = STATUS_NOT_FOUND
         @ts = Time.now
         @size = 0
         @checksum = ""
         @mime = ""
+        @error_string = "file not found"
       end
       @includes = []
       @refs = []
@@ -68,13 +75,13 @@ module DocbookFiles
 
     # Does the really file exist?
     def exists?
-      @exists
+      @status != STATUS_NOT_FOUND
     end
 
     # Return the names and parent files of non-existing files
     def find_non_existing_files
-      files = traverse([:name, :exists, :parent])
-      files.flatten.reject{|f| f[:exists] == true}.map{|f| f.delete(:exists); f}
+      files = traverse([:name, :status, :parent])
+      files.flatten.reject{|f| f[:status] != STATUS_NOT_FOUND}.map{|f| f.delete(:status); f}
     end
 
     # Return a tree-like array with all names
