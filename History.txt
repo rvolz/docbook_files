@@ -1,3 +1,12 @@
+== 0.4.0 / 2011-10-14
+
+* Added JSON and YAML output formats
+* Changed colorization to include other errors
+* Changed homepage to GitHub 
+* Minor fixes
+** Fixed Ruby 1.8 incompatibilities
+** Improved error handling
+
 == 0.3.0 / 2011-10-11
 
 * Reorganized output

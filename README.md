@@ -10,7 +10,7 @@ Features
 * lists and checks referenced files (media files and others, specified by _fileref_)
 * shows errors, e.g. not existing files
 * provides a detail listing
-* 
+* offers alternative output formats (YAML, JSON)
 
 Synopsis
 --------
