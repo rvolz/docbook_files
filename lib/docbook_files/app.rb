@@ -96,7 +96,7 @@ EOB
             t[:full_name] = relative2main(t[:full_name], mpath)
             t
           }
-          @stdout.puts ntable
+          @stdout.puts ntable.to_json
         when :yaml
           mpath = table[0][:full_name]
           ntable = table.map{|t|
