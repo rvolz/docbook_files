@@ -17,6 +17,7 @@ Bones {
   email        'dev@textmulch.de'
   url          'http://rvolz.github.com/docbook_files/'
   ignore_file  '.gitignore'
+  exclude      << 'dbf-about.org'
   depend_on    'libxml-ruby'
   depend_on    'term-ansicolor'
   depend_on    'wand'
