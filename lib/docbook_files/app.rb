@@ -91,9 +91,19 @@ EOB
       unless table.nil?
         case @opts[:output_format]
         when :json
-          @stdout.puts table.to_json
+          mpath = table[0][:full_name]
+          ntable = table.map{|t|
+            t[:full_name] = relative2main(t[:full_name], mpath)
+            t
+          }
+          @stdout.puts ntable
         when :yaml
-          YAML.dump(table,@stdout)
+          mpath = table[0][:full_name]
+          ntable = table.map{|t|
+            t[:full_name] = relative2main(t[:full_name], mpath)
+            t
+          }
+          YAML.dump(ntable,@stdout)
         else
           output(table)
         end
@@ -174,18 +184,24 @@ EOB
     # If the resulting string is too long for display it is shortened.
     #
     def format_name(level, full_name, main_name)
-      main_dir = File.dirname(main_name)
-      md = full_name.match("^#{main_dir}/")
-      if md.nil?
-        nname = full_name
-      else
-        nname = md.post_match
-      end
+      nname = relative2main(full_name, main_name)
       lnname = '  '*level+nname
       if (lnname.length > 60)
         lnname[0..3]+'...'+lnname[-54,lnname.length-1]
       else
         lnname
+      end
+    end
+
+    # Try to find the path of _file_name_ that is relative to the _main file_.
+    # If there is no common part return the _file_name_.
+    def relative2main(file_name,main_name)
+      main_dir = File.dirname(main_name)
+      md = file_name.match("^#{main_dir}/")
+      if md.nil?
+        file_name
+      else
+        md.post_match
       end
     end
 

@@ -21,7 +21,7 @@ module DocbookFiles
     # Error while processing the file, see #error_string
     STATUS_ERR = 2
     
-    attr_accessor :name, :exists, :includes, :refs
+    attr_accessor :name, :path, :exists, :includes, :refs
     attr_accessor :status, :error_string
     
     def FileData.init_vars()
@@ -45,7 +45,7 @@ module DocbookFiles
     
 
     def initialize(name,parent_dir=".",parent_file=nil)
-      @name = name
+      @path = name
       @full_name = get_full_name(name, parent_dir)
       @name = File.basename(name)   
       @namespace = ""

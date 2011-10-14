@@ -7,9 +7,10 @@ Features
 --------
 
 * lists and checks included files (XInclude)
-* lists and checks referenced files (media files and others, specidifed by _fileref_)
+* lists and checks referenced files (media files and others, specified by _fileref_)
 * shows errors, e.g. not existing files
 * provides a detail listing
+* 
 
 Synopsis
 --------
@@ -18,11 +19,34 @@ docbook_files is a command line application, bin/docbook_files, which checks the
 
     docbook_files myproject.xml
 
-This will result in a overview listing of the file names, starting from file _myproject.xml_ and following every XInclude link or _fileref_ reference. _fileref_ attributes are used in _mediaobject_ tags to specify external image, video, and audio files. Files that could not be found are shown in red.
+This will result in a overview listing of the file names, starting from file _myproject.xml_ and following every XInclude link or _fileref_ reference. _fileref_ attributes are used in _mediaobject_ tags to specify external image, video, and audio files. Files with problems are marked red.
 
     docbook_files --details myproject.xml
 
 The _--details_ option adds, well yes, details to the overview: size, type information, timestamp and checksum.
+
+If you don't like the screen output or want to integrate docbook_file into a certain workflow, just use the YAML or JSON output format instead. The option _--outputformat_ lets you specify a different output format, for example:
+
+    docbook_files --outputformat=yaml myproject.xml
+
+The result is printed to STDOUT. The structure returned is equivalent to the normal terminal output, except that you always get the details. The structure returned is an array, where each entry contains the following key-value pairs: 
+
+ * type - file type (main, inc-luded, or ref-erenced)
+ * name - file name
+ * full_name - path relative to the main file
+ * level - the level in the file hierarchy, starting with 0
+ * parent - parent file that included or referenced this file
+ * status - error status: 0 = ok, 1 = file not found, 2 = processing error (see error_string)
+ * error_string - contains an error message, if status > 0
+ * namespace - XML namespace, if applicable
+ * version - XML version attribute, of applicable
+ * docbook - true for DocBook 5 files, else false
+ * tag - start tag for XML files (chapter, book, article ...)  
+ * ts - file modification time
+ * size - fiel size in byte
+ * checksum - SHA1 checksum
+ * mime - MIME type
+ 
 
 Requirements
 ------------
