@@ -2,7 +2,12 @@
 
 require 'optparse'
 require 'yaml'
-require 'json'
+begin
+  require 'json'
+  @json_available = true
+rescue
+  @json_available = false
+end
 require 'term/ansicolor'
 
 class String
@@ -52,15 +57,20 @@ EOB
     def run(args)
       opts = OptionParser.new
       opts.on('--details','List file details') {|val| @opts[:details] = true}
-      opts.on('--outputformat=yaml|json',['json','yaml'],
+      opts.on('--outputformat=yaml|json',['yaml','json'],
               'Return the result in YAML or JSON format') {|format|
         case
         when format == 'yaml'
           @opts[:output_format] = :yaml
         when format == 'json'
-          @opts[:output_format] = :json
+          if @json_available
+            @opts[:output_format] = :json
+          else
+            @stderr.puts "Error: JSON not available. Please install the json gem first."
+            exit 1
+          end
         else
-          @stderr.puts "Warning: Unknown output format #{format}. Using screen output.".orange
+          @stderr.puts "Error: Unknown output format #{format}."
         end
       }        
       opts.banner = @@banner
