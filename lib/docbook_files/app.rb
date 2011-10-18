@@ -2,26 +2,48 @@
 
 require 'optparse'
 require 'yaml'
-begin
-  require 'json'
-  @json_available = true
-rescue
-  @json_available = false
-end
-require 'term/ansicolor'
+require 'zucker/env'
 
-class String
-  include Term::ANSIColor
+# Windows (RubyInstaller) needs the additional gem.
+# If not present create dummies for the color routines.
+if OS.windows?
+  begin
+    require 'win32console'
+    require 'term/ansicolor'
+    class String
+      include Term::ANSIColor
+    end
+  rescue LoadError
+    class String
+      def red; self; end
+      def green; self; end
+      def magenta; self; end
+      def bold; self; end
+    end
+  end
+else
+  require 'term/ansicolor'
+  class String
+    include Term::ANSIColor
+  end
 end
   
 module DocbookFiles
   
   # Create a new instance of App, and run the +docbook_files+ application given
-  # the command line _args_.
+  # the command line _args_. Check also for JSON availability.
   #
   def self.run( args = nil )
     args ||= ARGV.dup.map! { |v| v.dup }
-    ::DocbookFiles::App.new.run args
+    opts = {}
+    # For Windows and/or Ruby 1.8
+    begin
+      require 'json'      
+      opts[:json_available] = true
+    rescue LoadError
+      opts[:json_available] = false
+    end    
+    ::DocbookFiles::App.new(opts).run args
   end
 
   ##
@@ -33,6 +55,14 @@ module DocbookFiles
   # * 2 - processing error
   #
   class App
+
+    # Replacement for empty values
+    EMPTYVAL = '-'
+
+    # Replacement for monstrously large files sizes
+    XXL_SIZE = "XXL"
+    
+    # Help banner
     @@banner = <<EOB
 docbook_files, Version #{DocbookFiles::VERSION}
 
@@ -50,8 +80,9 @@ EOB
       @stderr = opts[:stderr]
       @opts[:output_format] ||= :screen
       @opts[:details] ||= false
+      @opts[:json_available] ||= opts[:json_available]
       @props = [:name, :full_name, :namespace, :docbook,
-                :version, :tag, :parent, :status, :ts, :size, :checksum, :mime, :error_string]
+                :version, :tag, :status, :parent, :ts, :size, :checksum, :mime, :error_string]
     end
 
     def run(args)
@@ -63,7 +94,7 @@ EOB
         when format == 'yaml'
           @opts[:output_format] = :yaml
         when format == 'json'
-          if @json_available
+          if @opts[:json_available]
             @opts[:output_format] = :json
           else
             @stderr.puts "Error: JSON not available. Please install the json gem first."
@@ -186,6 +217,15 @@ EOB
     end
 
 
+    # Format the list of parent documents
+    def format_parents(ps)
+      if (ps.nil? || ps.empty?)
+        EMPTYVAL
+      else
+        ps.map {|p| FileData.files[p].path}.join ','
+      end
+    end
+
     # Format the filename to indicate the level in the hierarchy.
     # Indentation = two spaces per level.
     #
@@ -227,7 +267,7 @@ EOB
     # Sizes >= 1PB will return 'XXL'
     def format_size(sz)
       if (emptyval?(sz))
-        '-'
+        EMPTYVAL
       else
         case
         when sz < KB then  "#{sz}B"
@@ -236,18 +276,14 @@ EOB
         when sz >= GB && sz < TB then "#{sz/GB}GB"
         when sz >= TB && sz < PB then "#{sz/TB}TB"
         else
-          "XXL"
+          XXL_SIZE
         end
       end
     end
 
-    # Return a string for the value, '<>' if there is none.
+    # Return a string for the value, '-' if there is none.
     def val_s(val)
-      if emptyval?(val)
-        '-'
-      else
-        val.to_s
-      end
+      emptyval?(val) ? EMPTYVAL : val.to_s
     end
 
     # Check whether the value is nil or empty.

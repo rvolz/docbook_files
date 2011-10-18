@@ -59,7 +59,15 @@ werden. Auf Non-XML hinweisen.
 
 Ist die Hauptdatei Non-XML, abbrechen.
 
+** DONE Gem Postinstall- Hinweise für Windows, Ruby 1.8
 
+Auf win32console bzw. JSON hinweisen
+
+** DONE win32console für Windows einbauen
+
+Um term/ansicolor zum Laufen zu bringen:
+require 'win32console' einbauen bei Windows. 
+Falls vorhanden wird die Farbe aktiviert, sonst werden die ansicolor-funktionen durch Dummies ersetzt.
 
 
 * Später
