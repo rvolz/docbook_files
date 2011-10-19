@@ -82,7 +82,7 @@ EOB
       @opts[:output_format] ||= :screen
       @opts[:details] ||= false
       @opts[:json_available] ||= opts[:json_available]
-      @props = [:name, :path, :full_name,:status, :size]
+      @props = [:name, :path, :status, :size]
       FileData.reset()
     end
 
