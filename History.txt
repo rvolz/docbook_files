@@ -1,3 +1,13 @@
+== 0.5.0 / 2011-10-19
+
+* A file can now manage multiple inclusions and/or references.
+* The YAML and JSON output contains now two sections, hierarchy and  details, just like the terminal output.
+* The details contain new fields for multiple references: includes, included_by and references, referenced_by
+
+* Minor changes
+** Removed JSON dependency. It is used when available.
+** Color support is now optional on Windows
+
 == 0.4.0 / 2011-10-14
 
 * Added JSON and YAML output formats
