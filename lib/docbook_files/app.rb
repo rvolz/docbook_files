@@ -72,6 +72,7 @@ Files with problems (not found, invalid ...) are marked red.
 Usage: docbook_files [options] <DOCBOOK-FILE>
 EOB
 
+    # Initialize options and reset the FileData storage
     def initialize(opts = {})
       opts[:stdout] ||= $stdout
       opts[:stderr] ||= $stderr
@@ -81,7 +82,8 @@ EOB
       @opts[:output_format] ||= :screen
       @opts[:details] ||= false
       @opts[:json_available] ||= opts[:json_available]
-      @props = [:name, :full_name,:status, :size]
+      @props = [:name, :path, :full_name,:status, :size]
+      FileData.reset()
     end
 
     def run(args)
@@ -123,6 +125,7 @@ EOB
       begin
         dbf = DocbookFiles::Docbook.new(rest[0])
         table = dbf.list_as_table(@props)
+        files = FileData.files
       rescue => exc
         @stderr.puts "Something unexpected happend while docbook_files was running ..."
         @stderr.puts exc.inspect.red
@@ -131,27 +134,29 @@ EOB
       unless table.nil?
         case @opts[:output_format]
         when :json
-          mpath = table[0][:full_name]
-          ntable = table.map{|t|
-            t[:full_name] = relative2main(t[:full_name], mpath)
-            t
-          }
-          @stdout.puts ntable.to_json
+          out = {:hierarchy => table, :details => files2table(files)}
+          @stdout.puts out.to_json
         when :yaml
-          mpath = table[0][:full_name]
-          ntable = table.map{|t|
-            t[:full_name] = relative2main(t[:full_name], mpath)
-            t
-          }
-          YAML.dump(ntable,@stdout)
+          out = {:hierarchy => table, :details => files2table(files)}
+          YAML.dump(out,@stdout)
         else
-          output(table)
+          output_hierarchy(table)
+          output_details(files) if @opts[:details]        
         end
       end
     end
 
-    # Terminal output to @stdout
-    def output(table)
+    # Transform the files into something YAML/JSON can handle
+    def files2table(files)
+      files.map { |f|
+        f.to_hash([:name, :path, :status, :error_string, :namespace,
+                   :version, :docbook, :tag, :ts, :size, :checksum,
+                   :mime, :includes, :included_by, :references, :referenced_by])
+      }
+    end
+        
+    # Terminal output for file hierarchy
+    def output_hierarchy(table)
       output_string = "%3d %-60s %4s %10s" 
       @stdout.puts
       @stdout.puts 'File Hierarchy'.bold
@@ -162,7 +167,7 @@ EOB
       sum_xml_err = 0
       table.each do |t|
         output = output_string % [t[:level],
-                                  format_name(t[:level],t[:full_name],table[0][:full_name]),
+                                  format_name(t[:level],t[:path]),
                                   t[:type].to_s,
                                   format_size(t[:size])]
         sum_size += t[:size]
@@ -185,18 +190,14 @@ EOB
         summary += " #{sum_xml_err} file(s) with errors.".red
       end
       @stdout.puts summary
-      if @opts[:details]
-        output_details()
-      end
     end
 
     # Print the FileData representation to the terminal
-    def output_details
-      files = FileData.files
+    def output_details(files)      
       @stdout.puts
       @stdout.puts "Details".bold
       files.each do |t|
-        fname = format_name(0,t.full_name,files[0].full_name)
+        fname = t.path
         @stdout.puts "File: %s" % [((t.status == FileData::STATUS_OK) ? fname : fname.red)]
         @stdout.puts "Includes: %s" % [format_fds(t.includes)] unless t.includes.empty?
         @stdout.puts "Included by: %s" % [format_fds(t.included_by)] unless t.included_by.empty?
@@ -235,25 +236,12 @@ EOB
     # relative part of the path is shown, else the full path.
     # If the resulting string is too long for display it is shortened.
     #
-    def format_name(level, full_name, main_name)
-      nname = relative2main(full_name, main_name)
-      lnname = '  '*level+nname
+    def format_name(level, full_name)
+      lnname = '  '*level+full_name
       if (lnname.length > 60)
         lnname[0..3]+'...'+lnname[-54,lnname.length-1]
       else
         lnname
-      end
-    end
-
-    # Try to find the path of _file_name_ that is relative to the _main file_.
-    # If there is no common part return the _file_name_.
-    def relative2main(file_name,main_name)
-      main_dir = File.dirname(main_name)
-      md = file_name.match("^#{main_dir}/")
-      if md.nil?
-        file_name
-      else
-        md.post_match
       end
     end
 

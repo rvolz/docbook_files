@@ -42,7 +42,7 @@ module DocbookFiles
     # The type is added.
     # 
     # Example: to_hash([:name, :mime]) would return 
-    #  {:name => "name", :mime => "application/xml"}.
+    #  {:type => "main", :name => "name", :mime => "application/xml"}.
     #
     def to_hash(props,type)
       me_hash = {:type => type}

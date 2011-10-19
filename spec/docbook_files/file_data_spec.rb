@@ -26,10 +26,39 @@ module  DocbookFiles
       end
     end
 
+    it "constructs file names (path) relative to the main file" do
+      f1 = FileData.for("spec/fixtures/bookxi.xml")
+      f2 = FileData.for("spec/fixtures/chapter2xi.xml")
+      f3 = FileData.for("spec/fixtures/c4/chapter4xi.xml")
+      f1.add_includes([f2,f3])
+      f1.name.should == "bookxi.xml"
+      f1.path.should == "bookxi.xml"
+      f1.full_name.should == File.expand_path(".")+"/spec/fixtures/bookxi.xml"
+      f3.name.should == "chapter4xi.xml"
+      f3.path.should == "c4/chapter4xi.xml"
+      f3.full_name.should == File.expand_path(".")+"/spec/fixtures/c4/chapter4xi.xml"
+    end
+
+    it "doesn't change absolute file names in path construction" do
+      f1 = FileData.for("spec/fixtures/bookxi.xml")
+      f2 = FileData.for("/spec/fixtures/chapter2xi.xml")
+      f2.name.should == "chapter2xi.xml"
+      f2.path.should == "/spec/fixtures/chapter2xi.xml"
+      f2.full_name.should == "/spec/fixtures/chapter2xi.xml"
+    end
+
+    it "doesn't change file names outside the main dir in path construction" do
+      f1 = FileData.for("spec/fixtures/bookxi.xml")
+      f2 = FileData.for("../spec2/fixtures/chapter2xi.xml")
+      f2.name.should == "chapter2xi.xml"
+      f2.path.should == File.expand_path("..")+"/spec2/fixtures/chapter2xi.xml"
+      f2.full_name.should == File.expand_path("..")+"/spec2/fixtures/chapter2xi.xml"
+    end    
+    
     it "stores only one instance per file" do
       f1 = FileData.for("spec/fixtures/bookxi.xml")
       f2 = FileData.for("spec/fixtures/bookxi.xml")
-      FileData.files.size .should == 1
+      FileData.files.size.should == 1
     end
     
     it "stores includes" do

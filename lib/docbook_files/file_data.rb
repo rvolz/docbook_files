@@ -20,6 +20,35 @@ module DocbookFiles
     # A storage for all FileData instances. 
     @@Files = {}
 
+    # The directory of the main file. All #path names are relative to that
+    @@MainDir = ""
+    
+    # Return the FileData storage -- for testing only
+    def self.storage; @@Files; end
+
+    # Return all existing FileData instances
+    def self.files; @@Files.values; end
+    
+    # Reset the FileData storage -- must be done before every run!
+    def self.reset
+      @@Files={}
+      @@MainDir = ""
+    end
+    
+    # Factory method for FileData instances. Checks if there is already
+    # an instance. 
+    def self.for(name,parent_dir=".")
+      full_name = get_full_name(name, parent_dir)
+      # Initialize the main dir name for path construction
+      @@MainDir = File.dirname(full_name) if @@Files.size == 0
+      key = full_name
+      if (@@Files[key].nil?)
+        @@Files[key] = FileData.new(name, full_name, key, parent_dir)
+      end
+      @@Files[key]
+    end
+
+
     attr_accessor :name, :path, :exists
     attr_accessor :status, :error_string
     attr_accessor :full_name
@@ -30,35 +59,9 @@ module DocbookFiles
     # XML data: namespace, docbook flag, namespace version, start tag
     attr_accessor :namespace, :docbook, :version, :tag
 
-
-    
-    # Return the FileData storage -- for testing only
-    def self.storage; @@Files; end
-
-    # Return all existing FileData instances
-    def self.files; @@Files.values; end
-    
-    # Reset the FileData storage -- must be done before every run!
-    def self.reset; @@Files={}; end
-
-    # Factory method for FileData instances. Checks if there is already
-    # an instance. 
-    def self.for(name,parent_dir=".")
-      full_name = get_full_name(name, parent_dir)
-      if (File.exists?(full_name))
-        checksum = calc_checksum(full_name)
-      else
-        checksum = ""
-      end
-      key = FileData.genkey(name,checksum)
-      if (@@Files[key].nil?)
-        @@Files[key] = FileData.new(name, full_name, key, checksum, parent_dir)
-      end
-      @@Files[key]
-    end
-    
-    def initialize(name, full_name, key, checksum, parent_dir=".")
-      @path = name
+        
+    def initialize(name, full_name, key, parent_dir=".")
+      @path = relative2main(full_name)
       @full_name = full_name
       @name = File.basename(name)
       @key = key
@@ -72,7 +75,7 @@ module DocbookFiles
         @status = STATUS_OK
         @ts  = File.mtime(full_name)
         @size = File.size(full_name)        
-        @checksum = checksum
+        @checksum = calc_checksum(full_name)
         @mime = get_mime_type()
       else
         @status = STATUS_NOT_FOUND
@@ -143,7 +146,34 @@ module DocbookFiles
       get_rel_targets(FileRefTypes::TYPE_REFERENCED_BY)
     end
     
+    # Try to find the path of _file_name_ that is relative to directory
+    # of the _main file_.
+    # If there is no common part return the _file_name_.
+    def relative2main(file_name)
+      md = file_name.match("^#{@@MainDir}/")
+      if md.nil?
+        file_name
+      else
+        md.post_match
+      end
+    end
 
+    # Return a hash with the values for the passed symbols.
+    # 
+    # Example: to_hash([:name, :mime]) would return 
+    #  {:name => "name", :mime => "application/xml"}.
+    #
+    def to_hash(props)
+      me_hash = {}      
+      props.each {|p|
+        if ([:includes, :included_by, :references, :referenced_by].member?(p))
+          me_hash[p] = self.send(p).map{|p2| p2.path}
+        else
+          me_hash[p] = self.send(p)
+        end
+      }
+      me_hash
+    end
 
 private
 
@@ -152,7 +182,7 @@ private
     #--
     # Includes hack for Ruby 1.8
     #++
-    def self.calc_checksum(full_name)
+    def calc_checksum(full_name)
       if RUBY_VERSION=~ /^1.8/
         contents = open(full_name, "rb") {|io| io.read }
       else
@@ -161,11 +191,6 @@ private
       Digest::SHA1.hexdigest(contents)
     end
 
-    # Generates the _unique_ key for this instance: path + checksum
-    def self.genkey(path,checksum)
-      "#{path}#{checksum}"
-    end
-    
     # Produce the full path for a filename
     def self.get_full_name(fname, parent_dir)
       dir = File.dirname(fname)
