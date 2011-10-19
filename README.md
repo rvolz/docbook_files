@@ -32,30 +32,30 @@ If you don't like the screen output or want to integrate docbook_file into a cer
 The result is printed to STDOUT. The structure returned is equivalent to the normal terminal output, except that you always get the details. 
 
  * hierarchy - an array of entries for each step in the file hierarchy
- ** type - file type (main, inc-luded, or ref-erenced)
- ** name - file name
- ** path - path relative to the main file
- ** status - error status: 0 = ok, 1 = file not found, 2 = processing error (see error_string)
- ** size - file size in bytes
- ** level - the level in the file hierarchy, starting with 0
+  * type - file type (main, inc-luded, or ref-erenced)
+  * name - file name
+  * path - path relative to the main file
+  * status - error status: 0 = ok, 1 = file not found, 2 = processing error (see error_string)
+  * size - file size in bytes
+  * level - the level in the file hierarchy, starting with 0
 
  * details - an array of entries for each file used in the hierarchy
- ** name - file name
- ** path - path relative to the main file
- ** status - error status: 0 = ok, 1 = file not found, 2 = processing error (see error_string)
- ** error_string - contains an error message, if status > 0
- ** namespace - XML namespace, if applicable
- ** version - XML version attribute, if applicable
- ** docbook - true for DocBook 5 files, else false
- ** tag - start tag for XML files (chapter, book, article ...)  
- ** ts - file modification time
- ** size - file size in byte
- ** checksum - SHA1 checksum
- ** mime - MIME type
- ** includes - files that are included by this file, an array of file names
- ** included_by - files that include this file, an array of file names
- ** references - files that are referenced by this file, an array of file names
- ** referenced_by - files that reference this file, an array of file names 
+  * name - file name
+  * path - path relative to the main file
+  * status - error status: 0 = ok, 1 = file not found, 2 = processing error (see error_string)
+  * error_string - contains an error message, if status > 0
+  * namespace - XML namespace, if applicable
+  * version - XML version attribute, if applicable
+  * docbook - true for DocBook 5 files, else false
+  * tag - start tag for XML files (chapter, book, article ...)  
+  * ts - file modification time
+  * size - file size in byte
+  * checksum - SHA1 checksum
+  * mime - MIME type
+  * includes - files that are included by this file, an array of file names
+  * included_by - files that include this file, an array of file names
+  * references - files that are referenced by this file, an array of file names
+  * referenced_by - files that reference this file, an array of file names 
 
 
 Requirements
