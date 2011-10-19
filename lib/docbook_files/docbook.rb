@@ -108,7 +108,7 @@ private
       refs = doc.find('//db:*[@fileref!=""]',:db => DOCBOOK_NS)
       refs.map {|r|
         fname = r.attributes['fileref']
-        FileData.new(fname,parent_dir,parent_fd)
+        FileRef.new(fname,parent_dir,parent_fd)
       }
     end
 
@@ -116,7 +116,7 @@ private
     # Returns a FileData object with its include-tree
     #
     def analyze_file(fname, parent_dir, parent_fd=nil)
-      fl = FileData.new(fname, parent_dir, parent_fd)
+      fl = FileRef.new(fname, parent_dir, parent_fd)
       if fl.exists?
         begin
           doc = XML::Document.file(fl.full_name)      

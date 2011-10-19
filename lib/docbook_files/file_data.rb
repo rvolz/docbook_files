@@ -4,15 +4,11 @@ module DocbookFiles
   require 'digest/sha1'
   require 'wand'
 
-  # Data about a member file of a DocBook project
+  # Represents the actual file that is included or referenced in a DocBook project.
+  # For every file there should only one FileData instance, so we use a factory method
+  # #FileData.for to create new instances.
+  #
   class FileData
-
-    # Type for the main/master file
-    TYPE_MAIN = :main
-    # Type for referenced files
-    TYPE_REFERENCE = :ref
-    # Type for included files
-    TYPE_INCLUDE = :inc
 
     # File exists and no error happened
     STATUS_OK = 0
@@ -20,45 +16,63 @@ module DocbookFiles
     STATUS_NOT_FOUND = 1
     # Error while processing the file, see #error_string
     STATUS_ERR = 2
-    
-    attr_accessor :name, :path, :exists, :includes, :refs
+
+    # A storage for all FileData instances. 
+    @@Files = {}
+
+    attr_accessor :name, :path, :exists
     attr_accessor :status, :error_string
+    attr_accessor :full_name
+    # Unique key (path+checksum)
+    attr_reader :key
+    # SHA1 checksum, file size in bytes, mime type, last modified timestamp
+    attr_reader :checksum, :size, :mime, :ts
+    # XML data: namespace, docbook flag, namespace version, start tag
+    attr_accessor :namespace, :docbook, :version, :tag
+
+
     
-    def FileData.init_vars()
-      x = {:full_name => "file name + path",
-        :ts => "last modified timestamp",
-        :size => "file size",
-        :checksum => "file checksum",
-        :mime => "the file's MIME type",
-        :namespace => "XML namespace, if applicable",
-        :docbook => "DocBook type flag",
-        :version => "DocBook version number, if applicable",
-        :tag => "XML start tag, if applicable",
-        :parent => "parent file, if included or referenced"}
-      x.each  { |s,ex|
-        attr_accessor s
-      }
-      x
+    # Return the FileData storage -- for testing only
+    def self.storage; @@Files; end
+
+    # Return all existing FileData instances
+    def self.files; @@Files.values; end
+    
+    # Reset the FileData storage -- must be done before every run!
+    def self.reset; @@Files={}; end
+
+    # Factory method for FileData instances. Checks if there is already
+    # an instance. 
+    def self.for(name,parent_dir=".")
+      full_name = get_full_name(name, parent_dir)
+      if (File.exists?(full_name))
+        checksum = calc_checksum(full_name)
+      else
+        checksum = ""
+      end
+      key = FileData.genkey(name,checksum)
+      if (@@Files[key].nil?)
+        @@Files[key] = FileData.new(name, full_name, key, checksum, parent_dir)
+      end
+      @@Files[key]
     end
-
-    @@vars = init_vars()
     
-
-    def initialize(name,parent_dir=".",parent_file=nil)
+    def initialize(name, full_name, key, checksum, parent_dir=".")
       @path = name
-      @full_name = get_full_name(name, parent_dir)
-      @name = File.basename(name)   
+      @full_name = full_name
+      @name = File.basename(name)
+      @key = key
       @namespace = ""
       @docbook = false
       @version = ""
       @tag = ""
       @error_string = nil
-      @parent = (parent_file.nil? ? nil : parent_file.name)
+      @rels = []
       if (File.exists?(@full_name))
         @status = STATUS_OK
         @ts  = File.mtime(full_name)
         @size = File.size(full_name)        
-        @checksum = calc_checksum()
+        @checksum = checksum
         @mime = get_mime_type()
       else
         @status = STATUS_NOT_FOUND
@@ -67,9 +81,7 @@ module DocbookFiles
         @checksum = ""
         @mime = ""
         @error_string = "file not found"
-      end
-      @includes = []
-      @refs = []
+      end      
     end
 
 
@@ -78,60 +90,60 @@ module DocbookFiles
       @status != STATUS_NOT_FOUND
     end
 
-    # Return the names and parent files of non-existing files
-    def find_non_existing_files
-      files = traverse([:name, :status, :parent])
-      files.flatten.reject{|f| f[:status] != STATUS_NOT_FOUND}.map{|f| f.delete(:status); f}
+    # Add a one-way relationship, type and target, to self
+    def add_rel(type, target)
+      @rels << {:type => type, :target => target}
     end
-
-    # Return a tree-like array with all names
-    def names
-      self.traverse([:name])
+    # Add a two-way relationship between self and a number of targets. 
+    def add_rels(type, invtype, targets)
+      targets.each {|t|
+        self.add_rel(type, t)
+        t.add_rel(invtype, self)
+      }
     end
-
-    # Return a hash with the values for the passed symbols.
-    # The type is added.
-    # 
-    # Example: to_hash([:name, :mime]) would return 
-    #  {:name => "name", :mime => "application/xml"}.
+    # Get all targets for a relation
+    def get_rel_targets(type)
+      @rels.find_all{|rel| rel[:type] == type}.map{|r| r[:target]}
+    end
+    
+    # Add included FileDatas. Establishes a two way relationship between self
+    # and the included files:
     #
-    def to_hash(props,type)
-      me_hash = {:type => type}
-      props.each {|p| me_hash[p] = self.send(p)}
-      me_hash
-    end
-
-    # Return a tree-like array of maps with the 
-    # requested properties (symbols)
-    def traverse(props=[],type=TYPE_MAIN)
-      me = self.to_hash(props,type)
-      me2 = [me]
-      unless @refs.empty?()
-        me2 += @refs.map {|r| r.to_hash(props,TYPE_REFERENCE)}
-      end
-      if @includes.empty?()
-        me2
-      else
-        me2 + @includes.map {|i| i.traverse(props,TYPE_INCLUDE)}
-      end
-    end
-
-    # Return a table-like array of maps with the 
-    # requested properties (symbols). Each entry gets a level 
-    # indicator (:level) to show the tree-level.
+    # self -> TYPE_INCLUDE -> target
+    # self <- TYPE_INCLUDED_BY <- target
     #
-    def traverse_as_table(props,level=0,type=TYPE_MAIN)
-      me = self.to_hash(props,type)
-      me[:level] = level
-      me2 = [me]
-      unless @refs.empty?()
-        me2 += @refs.map {|r| x = r.to_hash(props,TYPE_REFERENCE); x[:level] = level+1; x}
-      end
-      unless @includes.empty?()
-        me2 += @includes.map {|i| i.traverse_as_table(props,level+1,TYPE_INCLUDE)}
-      end
-      me2.flatten
+    # TODO: should be 'add_includes'
+    def add_includes(incs)
+      add_rels(FileRefTypes::TYPE_INCLUDE, FileRefTypes::TYPE_INCLUDED_BY, incs)
     end
+    # Retrieves all included FileDatas
+    def includes
+      get_rel_targets(FileRefTypes::TYPE_INCLUDE)
+    end
+    # Retrieves all FileDatas that include self
+    def included_by
+      get_rel_targets(FileRefTypes::TYPE_INCLUDED_BY)
+    end
+
+    # Add referenced FileDatas. Establishes a two way relationship between self
+    # and the referenced files:
+    #
+    # self -> TYPE_REFERENCE -> target
+    # self <- TYPE_REFERENCED_BY <- target
+    #
+    def add_references(incs)
+      add_rels(FileRefTypes::TYPE_REFERENCE, FileRefTypes::TYPE_REFERENCED_BY, incs)
+    end
+    # Retrieves all referenced files
+    def references
+      get_rel_targets(FileRefTypes::TYPE_REFERENCE)
+    end
+    # Retrieves all FileDatas that reference self
+    def referenced_by
+      get_rel_targets(FileRefTypes::TYPE_REFERENCED_BY)
+    end
+    
+
 
 private
 
@@ -140,17 +152,22 @@ private
     #--
     # Includes hack for Ruby 1.8
     #++
-    def calc_checksum
+    def self.calc_checksum(full_name)
       if RUBY_VERSION=~ /^1.8/
-        contents = open(@full_name, "rb") {|io| io.read }
+        contents = open(full_name, "rb") {|io| io.read }
       else
-        contents = IO.binread(@full_name)
+        contents = IO.binread(full_name)
       end
       Digest::SHA1.hexdigest(contents)
     end
 
+    # Generates the _unique_ key for this instance: path + checksum
+    def self.genkey(path,checksum)
+      "#{path}#{checksum}"
+    end
+    
     # Produce the full path for a filename
-    def get_full_name(fname, parent_dir)
+    def self.get_full_name(fname, parent_dir)
       dir = File.dirname(fname)
       file = File.basename(fname)
       full_name = File.expand_path(file,dir)

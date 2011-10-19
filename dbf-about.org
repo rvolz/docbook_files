@@ -45,7 +45,7 @@ verschoben. Die Optionen sind dann nicht mehr notwendig.
 
 Wenn jemand den Bericht nicht mag, kann er gern die Daten über
 
-** TODO Dateien mit mehreren Eltern
+** DONE Dateien mit mehreren Eltern
 
 Besonders wichtig ist die Zusammenfassung, also Dateien, die an
 mehreren Stellen eingebunden werden, also mehrere Eltern haben! Es geht

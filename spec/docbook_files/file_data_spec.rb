@@ -5,74 +5,55 @@ require 'time'
 module  DocbookFiles 
   describe FileData do
     
+    before(:each) do
+      FileData.reset()
+    end
+ 
     it "calculates a checksum" do
-      f = FileData.new("spec/fixtures/bookxi.xml")
+      f = FileData.for("spec/fixtures/bookxi.xml")
       f.checksum.should == "7d240e7a084c16665ac59e5b927acd6a06953897"
     end
     
     it "finds a XML MIME type" do
-      f = FileData.new("spec/fixtures/bookxi.xml")
+      f = FileData.for("spec/fixtures/bookxi.xml")
       f.mime.should == "application/xml"
     end
     
     it "finds a plain text MIME type" do
       pending("different MIME lib?") do
-        f = FileData.new("spec/fixtures/no-xml.xml")
+        f = FileData.for("spec/fixtures/no-xml.xml")
         f.mime.should_not == "application/xml"
       end
     end
-    
-    it "converts a single FileData instance to a hash" do
-      f = FileData.new("spec/fixtures/bookxi.xml")
-      actual = f.to_hash([:name,:mime,:size],FileData::TYPE_MAIN)
-      actual.should == {:type => :main, :name=>"bookxi.xml", :mime=>"application/xml", :size=>481}
-      actual = f.to_hash([:name, :full_name, :namespace, :docbook, :version, :tag, :parent, :status, :ts, :size, :checksum, :mime],FileData::TYPE_MAIN)
-      expected = {:type => :main, :name=>"bookxi.xml", 
-        :full_name=>File.expand_path(".")+"/spec/fixtures/bookxi.xml", 
-        :namespace=>"", :docbook=>false, :version=>"", :tag=>"", :parent=>nil, :status=>FileData::STATUS_OK, 
-        :ts=>File.mtime(File.expand_path(".")+"/spec/fixtures/bookxi.xml"), :size=>481, 
-        :checksum=>"7d240e7a084c16665ac59e5b927acd6a06953897", :mime=>"application/xml"}
-      actual.should == expected			
-    end
 
-    it "converts a FileData tree to an array of hashes" do
-      f1 = FileData.new("spec/fixtures/bookxi.xml")
-      f2 = FileData.new("spec/fixtures/chapter2xi.xml")
-      f3 = FileData.new("spec/fixtures/chapter3xi.xml")
-      f1.includes = [f2]
-      f2.includes = [f3]
-      expected = [{:type => :main, :name=>"bookxi.xml", :mime=>"application/xml", :size=>481}, 
-                  [{:type => :inc, :name=>"chapter2xi.xml", :mime=>"application/xml", :size=>366}, 
-                   [{:type => :inc, :name=>"chapter3xi.xml", :mime=>"application/xml", :size=>286}]]]
-      actual = f1.traverse([:name,:mime,:size],FileData::TYPE_MAIN)
-      actual.should == expected
+    it "stores only one instance per file" do
+      f1 = FileData.for("spec/fixtures/bookxi.xml")
+      f2 = FileData.for("spec/fixtures/bookxi.xml")
+      FileData.files.size .should == 1
     end
     
-    it "converts a FileData tree to a table of hashes" do
-      f1 = FileData.new("spec/fixtures/bookxi.xml")
-      f2 = FileData.new("spec/fixtures/chapter2xi.xml")
-      f3 = FileData.new("spec/fixtures/chapter3xi.xml")
-      f1.includes = [f2]
-      f2.includes = [f3]
-      expected = [{:type => :main, :name=>"bookxi.xml", :mime=>"application/xml", :size=>481, :level=>0}, 
-                  {:type => :inc, :name=>"chapter2xi.xml", :mime=>"application/xml", :size=>366, :level=>1}, 
-                  {:type => :inc, :name=>"chapter3xi.xml", :mime=>"application/xml", :size=>286, :level=>2}]
-      actual = f1.traverse_as_table([:name,:mime,:size])
-      actual.should == expected
+    it "stores includes" do
+      f1 = FileData.for("spec/fixtures/bookxi.xml")
+      f2 = FileData.for("spec/fixtures/chapter2xi.xml")
+      f3 = FileData.for("spec/fixtures/chapter3xi.xml")
+      f1.add_includes([f2,f3])
+      f1s = FileData::storage[f1.key]
+      f1s.includes.should == [f2, f3]
+      f2s = FileData::storage[f2.key]
+      f2s.included_by.should == [f1]
     end
-
-    it "finds non-existing files" do
-      f1 = FileData.new("spec/fixtures/bookxi.xml")
-      f2 = FileData.new("spec/fixtures/chapter2xi.xml",".",f1)
-      f3 = FileData.new("spec/fixtures/chapter3xi.xml",".",f2)
-      f5 = FileData.new("spec/fixtures/non-existing.xml",".",f2)
-      f1.includes = [f2]
-      f2.includes = [f3,f5]
-      expected = [{:type => :inc, :name=>"non-existing.xml", :parent=>"chapter2xi.xml"}]
-      actual = f1.find_non_existing_files()
-      actual.should  == expected
+    
+    it "stores references" do
+      f1 = FileData.for("spec/fixtures/bookxi.xml")
+      f2 = FileData.for("spec/fixtures/chapter2xi.xml")
+      f3 = FileData.for("spec/fixtures/chapter3xi.xml")
+      f1.add_references([f2,f3])
+      f1s = FileData::storage[f1.key]
+      f1s.references.should == [f2, f3]
+      f2s = FileData::storage[f2.key]
+      f2s.referenced_by.should == [f1]
     end
-
+    
   end
 end
 

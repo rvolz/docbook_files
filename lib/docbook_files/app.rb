@@ -81,8 +81,7 @@ EOB
       @opts[:output_format] ||= :screen
       @opts[:details] ||= false
       @opts[:json_available] ||= opts[:json_available]
-      @props = [:name, :full_name, :namespace, :docbook,
-                :version, :tag, :status, :parent, :ts, :size, :checksum, :mime, :error_string]
+      @props = [:name, :full_name,:status, :size]
     end
 
     def run(args)
@@ -187,42 +186,45 @@ EOB
       end
       @stdout.puts summary
       if @opts[:details]
-        @stdout.puts
-        @stdout.puts "Details".bold
-        table.each do |t|
-          fname = format_name(0,t[:full_name],table[0][:full_name])
-          @stdout.puts "File: %s" % [((t[:status] == FileData::STATUS_OK) ? fname : fname.red)]
-          if (t[:type] == FileData::TYPE_MAIN)
-            @stdout.puts "Main file"
-          elsif (t[:type] == FileData::TYPE_INCLUDE)
-            @stdout.puts "Included by: %s" % [t[:parent]]
-          else
-            @stdout.puts "Referenced by: %s" % [t[:parent]]
-          end
-          unless t[:status] == FileData::STATUS_NOT_FOUND
-            # show that part only if file exists
-            @stdout.puts "Size: %s (%d)" % [format_size(t[:size]),t[:size]]
-            if (t[:docbook])
-              @stdout.puts "Type: DocBook, Version #{t[:version]}, Tag: #{t[:tag]}"
-            else
-              @stdout.puts "MIME: #{val_s(t[:mime])}"
-            end
-            @stdout.puts "Timestamp: %s" % [t[:ts]]
-            @stdout.puts "Checksum: %s" % [t[:checksum]]
-          end
-          @stdout.puts "Error: %s" % [t[:error_string].to_s.red] unless (t[:error_string].nil?)            
-          @stdout.puts
-        end
+        output_details()
       end
     end
 
+    # Print the FileData representation to the terminal
+    def output_details
+      files = FileData.files
+      @stdout.puts
+      @stdout.puts "Details".bold
+      files.each do |t|
+        fname = format_name(0,t.full_name,files[0].full_name)
+        @stdout.puts "File: %s" % [((t.status == FileData::STATUS_OK) ? fname : fname.red)]
+        @stdout.puts "Includes: %s" % [format_fds(t.includes)] unless t.includes.empty?
+        @stdout.puts "Included by: %s" % [format_fds(t.included_by)] unless t.included_by.empty?
+        @stdout.puts "References: %s" % [format_fds(t.references)] unless t.references.empty?
+        @stdout.puts "Referenced by: %s" % [format_fds(t.referenced_by)] unless t.referenced_by.empty?
+        unless t.status == FileData::STATUS_NOT_FOUND
+          # show that part only if file exists
+          @stdout.puts "Size: %s (%d)" % [format_size(t.size),t.size]
+          if (t.docbook)
+            @stdout.puts "Type: DocBook, Version #{t.version}, Tag: #{t.tag}"
+          else
+            @stdout.puts "MIME: #{val_s(t.mime)}"
+          end
+          @stdout.puts "Timestamp: %s" % [t.ts]
+          @stdout.puts "SHA1: %s" % [t.checksum]
+        end
+        @stdout.puts "Error: %s" % [t.error_string.to_s.red] unless (t.error_string.nil?)            
+        @stdout.puts
+      end
+    end
 
-    # Format the list of parent documents
-    def format_parents(ps)
-      if (ps.nil? || ps.empty?)
+    
+    # Format a list of FileDatas
+    def format_fds(fds)
+      if (fds.nil? || fds.empty?)
         EMPTYVAL
       else
-        ps.map {|p| FileData.files[p].path}.join ','
+        fds.map {|p| p.path}.join ','
       end
     end
 
@@ -291,12 +293,9 @@ EOB
       if val.nil?
         true
       else
-        if (val.class == String)
-          val.empty?
-        else
-          false
-        end
+        (val.class == String) ? val.empty? : false
       end
     end
+    
   end
 end

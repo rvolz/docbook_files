@@ -7,7 +7,7 @@ module DocbookFiles
     it "can cope with invalid xml files" do
       dbf = DocbookFiles::Docbook.new("spec/fixtures/no-xml.xml")
       actual = dbf.list()
-      actual.class.should == DocbookFiles::FileData
+      actual.class.should == DocbookFiles::FileRef
       actual.name.should == "no-xml.xml"
       actual.size.should == 15
       actual.docbook.should be_false
