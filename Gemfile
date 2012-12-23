@@ -1,6 +1,6 @@
 #-*- encoding: utf-8 ; mode:ruby -*-
 source "http://rubygems.org"
-gem "libxml-ruby", :require => 'xml'
+gem "libxml-ruby", "~> 2.2.2", :require => 'xml'
 gem "term-ansicolor"
 gem "wand"
 gem "zucker"
