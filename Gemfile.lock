@@ -18,7 +18,7 @@ GEM
     guard-rspec (2.3.3)
       guard (>= 1.1)
       rspec (~> 2.11)
-    json (1.7.5)
+    json (2.3.0)
     libnotify (0.8.0)
       ffi (>= 1.0.11)
     libxml-ruby (2.2.2)
